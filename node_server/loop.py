@@ -4,6 +4,8 @@ import time
 import os, sys
 
 cap = cv2.VideoCapture(0)
+cap.set(3,320)
+cap.set(4,240)
 ret, new_image = cap.read()
 cv2.imwrite('public/img.png', new_image)
 while True:
