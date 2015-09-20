@@ -1,4 +1,4 @@
-#! usr/bin/bash
+#! /bin/bash
 
 killall ./app.js
 killall node
