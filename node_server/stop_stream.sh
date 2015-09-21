@@ -1,7 +1,7 @@
 #! /bin/bash
 
-killall ./app.js
+killall app.js
 killall node
-killall ./loop.py
+killall loop.py
 killall python
 
