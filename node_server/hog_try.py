@@ -12,8 +12,7 @@ class Hog_D(object):
 
     def hog_f(self, im):
         result = self.hog.detectMultiScale(im, **(self.hogParams))
-        print result
+        r = None
         if len(result[0])>0 :
             r = result[0][0]
-            cv2.rectangle(im, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
-        cv2.imshow("people detector", im)
+        return r
