@@ -48,8 +48,8 @@ if __name__ == '__main__':
         while True:
             pass
     except KeyboardInterrupt:
-        print "Exiting."
         for i in range(0,8):
             print "Terminating process "+str(i)
             process_list[i].terminate()
+        print "Exiting."
         sys.exit(1)
