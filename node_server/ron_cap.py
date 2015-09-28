@@ -39,11 +39,11 @@ def capture(l,i):
         c = b - a
         print "Time took " + str(c.microseconds/1000000.0)
         # Run the hog algorithm to find the location of the human being.
-        #if image is not None:
-            #r = h.hog_f(image)
-            #if r is not None:
-                #cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
-            #cv2.imshow("people detector "+str(i), image)
+        if image is not None:
+            r = h.hog_f(image)
+            if r is not None:
+                cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
+            cv2.imshow("people detector "+str(i), image)
         if cv2.waitKey(1) == 27:
             break
     cv2.destroyAllWindows()
