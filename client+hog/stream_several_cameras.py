@@ -30,4 +30,10 @@ def take_streams(stream_url):
             exit(0)
  
 
-take_streams(['http://192.168.1.58:5000/video_feed','http://192.168.1.60:5000/video_feed'])
+take_streams([
+'http://192.168.1.200:5000/video_feed'
+,'http://192.168.1.201:5000/video_feed'
+,'http://192.168.1.202:5000/video_feed'
+,'http://192.168.1.203:5000/video_feed'
+,'http://192.168.1.204:5000/video_feed'
+])

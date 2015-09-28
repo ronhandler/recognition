@@ -34,10 +34,10 @@ def capture(l,i):
             sys.stdout.write(".")
         sys.stdout.write("\n")
 
-        a = datetime.datetime.now()
-        b = datetime.datetime.now()
-        c = b - a
-        print "Time took " + str(c.microseconds/1000000.0)
+        #a = datetime.datetime.now()
+        #b = datetime.datetime.now()
+        #c = b - a
+        #print "Time took " + str(c.microseconds/1000000.0)
         # Run the hog algorithm to find the location of the human being.
         if image is not None:
             r = h.hog_f(image)
