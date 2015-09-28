@@ -13,12 +13,8 @@ def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
     resp = urllib.urlopen(url)
-    a = datetime.datetime.now()
     image = np.asarray(bytearray(resp.read()), dtype="uint8")
     image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-    b = datetime.datetime.now()
-    c = b - a
-    print "Time took " + str(c.microseconds/1000000.0)
     return image
 
 def capture(l,i):
@@ -38,6 +34,10 @@ def capture(l,i):
             sys.stdout.write(".")
         sys.stdout.write("\n")
 
+        a = datetime.datetime.now()
+        b = datetime.datetime.now()
+        c = b - a
+        print "Time took " + str(c.microseconds/1000000.0)
         # Run the hog algorithm to find the location of the human being.
         #if image is not None:
             #r = h.hog_f(image)
