@@ -27,7 +27,7 @@ def url_to_image(url):
 
 class capture(threading.Thread):
 
-    def __init__(self, i):
+    def __init__(self, i, images, hogs):
         threading.Thread.__init__(self)
         self.i = i
         self.h = Hog_D()
@@ -45,6 +45,8 @@ class capture(threading.Thread):
             image = url_to_image("http://192.168.1.20"+ str(i) +":800" + str(i) +"/img.png")
             #l.release()
 
+            images[i] = image
+
 
             # Print a message saying we received the image.
             if DEBUG_LEVEL >= 1:
@@ -58,31 +60,35 @@ class capture(threading.Thread):
 
             # Run the hog algorithm to find the location of the human being.
             if image is not None:
-                r = h.hog_f(image)
+                hogs[i] = h.hog_f(image)
                 
-                # Show the image.
-                if DEBUG_LEVEL >= 2:
-                    if r is not None:
-                        cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
-                    cv2.imshow("people detector "+str(i), image)
             if cv2.waitKey(1) == 27:
                 break
+
         cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     process_list = []
+    images = [None]*8
+    hogs = [None]*8
 
     try:
         lock = Lock()
         for i in range(0,8):
             print i
-            my_thread = capture(i)
+            my_thread = capture(i, images, hogs)
             my_thread.start()
             process_list.append(my_thread)
             #p = Process(target=capture, args=(lock, i))
             #p.start()
             #process_list.append(p)
         while True:
+            for i in range(0,8):
+                if images[i] is not None:
+                    if hogs[i] is not None:
+                        r = hogs[i]
+                        cv2.rectangle(images[i], (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
+                    cv2.imshow("people detector "+str(i), images[i])
             pass
     except KeyboardInterrupt:
         for i in range(0,8):
