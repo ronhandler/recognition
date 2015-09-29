@@ -11,7 +11,7 @@ import signal
 import threading
 from threading import Lock
 
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 0
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -40,10 +40,18 @@ class capture(threading.Thread):
         self.running = False
 
     def getHog(self):
-        return self.hog
+        r = None
+        self.l.acquire()
+        r = self.hog
+        self.l.release()
+        return r
 
     def getImage(self):
-        return self.image
+        img = None
+        self.l.acquire()
+        img = self.image
+        self.l.release()
+        return img
 
     def run(self):
         i = self.i
@@ -67,15 +75,13 @@ class capture(threading.Thread):
 
             # Run the hog algorithm to find the location of the human being.
             if image is not None:
+                #print "Image is not none", self.i
                 hog = self.h.hog_f(image)
                 self.l.acquire()
                 self.hog = hog
                 self.l.release()
                 
-            if cv2.waitKey(1) == 27:
-                break
 
-        cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     process_list = []
@@ -94,14 +100,18 @@ if __name__ == '__main__':
                 image = process_list[i].getImage()
                 if image is not None:
                     hog = process_list[i].getHog()
+                    lock.acquire()
                     if hog is not None:
                         r = hog
                         cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
+                        #print "Found", i
                     cv2.imshow("people detector "+str(i), image)
+                    lock.release()
             pass
     except KeyboardInterrupt:
         for i in range(0,8):
             print "Terminating process "+str(i)
+            cv2.destroyAllWindows()
             process_list[i].stop()
             #process_list[i].terminate()
         print "Exiting."
