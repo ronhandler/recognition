@@ -56,4 +56,6 @@ docs/_build/
 # PyBuilder
 target/
 
-
+# No need to save images...
+*.png
+**.png
