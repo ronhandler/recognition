@@ -63,16 +63,6 @@ class capture(threading.Thread):
             self.image = image
             self.l.release()
 
-            # Print a message saying we received the image.
-            if DEBUG_LEVEL >= 1:
-                sys.stdout.write("Received image " + str(i) + " ")
-                for j in range(0,i):
-                    sys.stdout.write(".")
-                sys.stdout.write("x")
-                for j in range(i,7):
-                    sys.stdout.write(".")
-                sys.stdout.write("\n")
-
             # Run the hog algorithm to find the location of the human being.
             if image is not None:
                 #print "Image is not none", self.i
@@ -80,8 +70,6 @@ class capture(threading.Thread):
                 self.l.acquire()
                 self.hog = hog
                 self.l.release()
-                
-
 
 if __name__ == '__main__':
     process_list = []
@@ -95,18 +83,16 @@ if __name__ == '__main__':
             process_list.append(my_thread)
         while True:
             for i in range(0,8):
-                #image = None
-                #hog = None
                 image = process_list[i].getImage()
+                hog = process_list[i].getHog()
+
                 if image is not None:
-                    hog = process_list[i].getHog()
-                    lock.acquire()
                     if hog is not None:
                         r = hog
                         cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
-                        #print "Found", i
+                    print "imshow", i
                     cv2.imshow("people detector "+str(i), image)
-                    lock.release()
+                    cv2.waitKey(1)
             pass
     except KeyboardInterrupt:
         for i in range(0,8):
