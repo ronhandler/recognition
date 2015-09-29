@@ -2,7 +2,6 @@
 
 import sys
 import cv2
-from multiprocessing import Process, Lock
 import urllib
 import numpy as np
 from hog_try import Hog_D
@@ -10,6 +9,7 @@ import time
 import datetime
 import signal
 import threading
+from threading import Lock
 
 DEBUG_LEVEL = 1
 
@@ -27,26 +27,33 @@ def url_to_image(url):
 
 class capture(threading.Thread):
 
-    def __init__(self, i, images, hogs):
+    def __init__(self, i, l):
         threading.Thread.__init__(self)
         self.i = i
-        self.h = Hog_D()
+        self.l = l
         self.running = True
+        self.h = Hog_D()
+        self.hog = None
+        self.image = None
 
     def stop(self):
         self.running = False
 
+    def getHog(self):
+        return self.hog
+
+    def getImage(self):
+        return self.image
+
     def run(self):
         i = self.i
-        h = self.h
 
         while self.running == True:
-            #l.acquire()
             image = url_to_image("http://192.168.1.20"+ str(i) +":800" + str(i) +"/img.png")
-            #l.release()
 
-            images[i] = image
-
+            self.l.acquire()
+            self.image = image
+            self.l.release()
 
             # Print a message saying we received the image.
             if DEBUG_LEVEL >= 1:
@@ -60,7 +67,10 @@ class capture(threading.Thread):
 
             # Run the hog algorithm to find the location of the human being.
             if image is not None:
-                hogs[i] = h.hog_f(image)
+                hog = self.h.hog_f(image)
+                self.l.acquire()
+                self.hog = hog
+                self.l.release()
                 
             if cv2.waitKey(1) == 27:
                 break
@@ -69,26 +79,25 @@ class capture(threading.Thread):
 
 if __name__ == '__main__':
     process_list = []
-    images = [None]*8
-    hogs = [None]*8
 
     try:
         lock = Lock()
         for i in range(0,8):
             print i
-            my_thread = capture(i, images, hogs)
+            my_thread = capture(i, lock)
             my_thread.start()
             process_list.append(my_thread)
-            #p = Process(target=capture, args=(lock, i))
-            #p.start()
-            #process_list.append(p)
         while True:
             for i in range(0,8):
-                if images[i] is not None:
-                    if hogs[i] is not None:
-                        r = hogs[i]
-                        cv2.rectangle(images[i], (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
-                    cv2.imshow("people detector "+str(i), images[i])
+                #image = None
+                #hog = None
+                image = process_list[i].getImage()
+                if image is not None:
+                    hog = process_list[i].getHog()
+                    if hog is not None:
+                        r = hog
+                        cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
+                    cv2.imshow("people detector "+str(i), image)
             pass
     except KeyboardInterrupt:
         for i in range(0,8):
