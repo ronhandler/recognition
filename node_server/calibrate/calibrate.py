@@ -19,18 +19,24 @@ def enter_handler():
     x = raw_input("Please, enter the X!!!")
     return x
 
-temp_images =[]
-images = []
+temp_images = [None]*8
+images = [None]*8
+
 for i in range (0, CAM_QUANTITY):    
     cv2.namedWindow("header"+str(i), cv2.WINDOW_OPENGL|cv2.WINDOW_AUTOSIZE)
     cv2.setMouseCallback("header"+str(i), mouse_handler, i)
 
-for i in range (0, CAM_QUANTITY):
-    cap = cv2.VideoCapture("http://192.168.1.20"+str(i)+":800"+str(i)+"/img.png")
-    ret, img = cap.read()
-    temp_images.append(img)
-    images.append(img)
-    cap.release()
+def pic_capture():
+    for i in range (0, CAM_QUANTITY):
+        cap = None
+        while cap is None:
+            print "Trying to capture"
+            cap = cv2.VideoCapture("http://192.168.1.20"+str(i)+":800"+str(i)+"/img.png")
+        ret, img = cap.read()
+        temp_images[i] = img
+        images[i] = img
+        cap.release()
+pic_capture()
 
 while True:
     for i in range (0, CAM_QUANTITY):
@@ -46,6 +52,10 @@ while True:
 
         y = enter_handler()
         print y
+    if k == 114:
+        #cv2.destroyAllWindows()
+        pic_capture()
+        continue
     if k==-1:
         continue
     #else:
