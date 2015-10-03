@@ -27,13 +27,14 @@ def pic_capture():
             if cap is not None:
                 break
         ret, img = cap.read()
-        if img in not None:
+        if img is not None:
             temp_images[i] = img
             images[i] = img
         cap.release()
 
 temp_images = [None]*8
 images = [None]*8
+#?#wp_cam_pos_center = [None]*
 
 for i in range (0, CAM_QUANTITY):    
     cv2.namedWindow("header"+str(i), cv2.WINDOW_OPENGL|cv2.WINDOW_AUTOSIZE)
@@ -50,15 +51,21 @@ while True:
     k = cv2.waitKey(33)
     if k==27:   # Esc key
         exit(0)
+    # if k == Enter
     if k == 10 or k == 13:   # Return key
         print "Enter"
 
         y = enter_handler()
         print y
+    #if k == r
     if k == 114:
         #cv2.destroyAllWindows()
         pic_capture()
         continue
+    #if k == s
+    if k == 115:
+        continue
+    
     if k==-1:
         continue
     #else:
