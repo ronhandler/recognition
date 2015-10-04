@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import cv2
 import time
+import pickle
 import os, sys
 import numpy as np
 from WayPointClass import WayPoint
@@ -97,6 +98,8 @@ if __name__ == "__main__":
         if k == 114:                # 'R' key
             print "Refreshing captured images..."
             pic_capture()
+            waypoints.pop()
+            waypoints.append({})
             continue
         if k == 115:                # 'S' key
             for i in range(0,len(waypoints)):
@@ -105,6 +108,9 @@ if __name__ == "__main__":
                     #print(str(k) + ":")
                     print(str(v))
                 print("\n")
+            with open("save.txt", "wb") as f:
+                pickle.dump(waypoints, f, 0)
+                #pickle.dump(waypoints[0], f, pickle.HIGHEST_PROTOCOL)
             continue
         if k==-1:                   # No key
             continue
