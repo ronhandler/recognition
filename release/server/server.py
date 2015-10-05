@@ -1,6 +1,9 @@
 #! /usr/bin/python
-
+import os
+# Change dir the script's location.
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import sys
+sys.path.append("../calibrate")
 import cv2
 import urllib
 import numpy as np
@@ -10,6 +13,8 @@ import datetime
 import signal
 import threading
 from threading import Lock
+import pickle
+from WayPointClass import WayPoint
 import ConfigParser
 config = ConfigParser.RawConfigParser()
 config.read('../config.txt')
@@ -17,6 +22,7 @@ config.read('../config.txt')
 DEBUG_LEVEL = config.getint("general", "debug_level")
 MAX_CAM_NUMBER = config.getint("general", "max_cam_number")
 URL = config.get("general", "url")
+CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -72,6 +78,15 @@ class capture(threading.Thread):
 
 if __name__ == '__main__':
     process_list = []
+
+    waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
+    #for i in range(0,len(waypoints)):
+        #print("WP " + str(i) + ":")
+        #for k,v in waypoints[i].items():
+            ##print(str(k) + ":")
+            #print(str(v))
+        #print("\n")
+    #exit(-1)
 
     try:
         lock = Lock()

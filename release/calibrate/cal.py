@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+import os
+# Change dir the script's location.
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import cv2
 import time
 import pickle
-import os, sys
+import sys
 import numpy as np
 from WayPointClass import WayPoint
 import ConfigParser
