@@ -14,6 +14,7 @@ config.read('../config.txt')
 
 WIDTH = config.getint("general", "width")
 HEIGHT = config.getint("general", "height")
+COLOR_DETECT_THRESHOLD = 0.2
 CAM_QUANTITY = config.getint("general", "max_cam_number")
 URL = config.get("general", "url")
 CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
@@ -88,9 +89,8 @@ def find_color():
                 mask = cv2.inRange(img_hsv, lower_color, upper_color)
                 amount_not_zero = cv2.countNonZero(mask)
                 # If found:
-                if amount_not_zero > (5*5)*0.2:
+                if amount_not_zero > (5*5)*COLOR_DETECT_THRESHOLD:
                     #print "Found the color on image " + str(i) + " at (" +str(x*5)+","+str(y*5)+")"
-
                     images[i] = np.copy(temp_images[i])
                     cv2.imshow(HEADER+str(i),images[i])
                     cv2.circle(images[i],(x,y),25,(255,0,255),3) 

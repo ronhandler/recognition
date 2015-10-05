@@ -4,6 +4,7 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import sys
 sys.path.append("../calibrate")
+import math
 import cv2
 import urllib
 import numpy as np
@@ -76,6 +77,9 @@ class capture(threading.Thread):
                 self.hog = hog
                 self.l.release()
 
+def dist(p1, p2):
+    return math.sqrt( (p2[1] - p1[1])**2 + (p2[0] - p1[0])**2 )
+
 if __name__ == '__main__':
     process_list = []
 
@@ -96,17 +100,43 @@ if __name__ == '__main__':
             my_thread.start()
             process_list.append(my_thread)
         while True:
-            loop_results = []
+            loop_results = [None]*MAX_CAM_NUMBER
             for i in range(0, MAX_CAM_NUMBER):
                 image = process_list[i].getImage()
                 hog = process_list[i].getHog()
-                loop_results.append((image, hog))
+                loop_results[i] = hog
                 if image is not None:
                     if hog is not None:
                         r = hog
                         cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
                     cv2.imshow("people detector "+str(i), image)
                     cv2.waitKey(1)
+            # Now we have a loop_result list that contains tuples of image
+            # and human position.
+            # What is left to do is to find the closest waypoint that
+            # matches them.
+            mind = float('inf')
+            mini = None
+            for i in range(0, MAX_CAM_NUMBER):
+                r = loop_results[i]
+                dists = []
+                if r == None: # If hog result is None we can skip.
+                    continue
+                for w in waypoints:
+                    for k,v in w.items():
+                        p1 = (r[0], r[1])
+                        p2 = (v.cam_pos[0], v.cam_pos[1])
+                        d = dist(p1, p2)
+                        if d != None:
+                            dists.append((v.cam_id, d))
+                            #print("Distance is: " + str(d))
+                for j in range(0, len(dists)):
+                    if mind > dists[i][1]:
+                        mind = dists[i][1]
+                        mini = j
+            if mini != None:
+                print("Minimum distance found at camera_id:" + str(mini) + ", d=" + str(mind))
+
     except KeyboardInterrupt:
         for i in range(0, MAX_CAM_NUMBER):
             print "Terminating process "+str(i)
