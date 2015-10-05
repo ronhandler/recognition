@@ -32,6 +32,7 @@ def mouse_handler(event, x, y, flags, cam_id):
         cv2.imshow(HEADER+str(cam_id),images[cam_id])
         cv2.circle(images[cam_id],(x,y),25,(255,0,0),3) 
         wp = WayPoint()
+        wp.wp_id = current_wp
         wp.cam_id = cam_id
         wp.cam_pos = (x, y)
         wp.phys_pos = coords

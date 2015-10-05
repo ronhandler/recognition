@@ -2,6 +2,7 @@
 
 class WayPoint(object):
     def __init__(self):
+        self.wp_id = -1
         self.cam_id = -1
         self.cam_pos = None
         self.phys_pos = None

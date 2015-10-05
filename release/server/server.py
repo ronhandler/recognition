@@ -128,14 +128,15 @@ if __name__ == '__main__':
                         p2 = (v.cam_pos[0], v.cam_pos[1])
                         d = dist(p1, p2)
                         if d != None:
-                            dists.append((v.cam_id, d))
+                            dists.append((v, d))
                             #print("Distance is: " + str(d))
                 for j in range(0, len(dists)):
                     if mind > dists[i][1]:
                         mind = dists[i][1]
                         mini = j
-            if mini != None:
-                print("Minimum distance found at camera_id:" + str(mini) + ", d=" + str(mind))
+                if mini != None:
+                    print("Minimum distance found at physical position:" +
+                            str(dists[mini][0].phys_pos))
 
     except KeyboardInterrupt:
         for i in range(0, MAX_CAM_NUMBER):
