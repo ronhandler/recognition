@@ -136,7 +136,8 @@ if __name__ == '__main__':
                         mini = j
                 if mini != None:
                     print("Minimum distance found at physical position:" +
-                            str(dists[mini][0].phys_pos))
+                            str(dists[mini][0].phys_pos) + " (wp:" +
+                            str(dists[mini][0].wp_id) + ")")
 
     except KeyboardInterrupt:
         for i in range(0, MAX_CAM_NUMBER):
