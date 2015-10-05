@@ -12,6 +12,8 @@ import ConfigParser
 config = ConfigParser.RawConfigParser()
 config.read('../config.txt')
 
+WIDTH = config.getint("general", "width")
+HEIGHT = config.getint("general", "height")
 CAM_QUANTITY = config.getint("general", "max_cam_number")
 URL = config.get("general", "url")
 CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
@@ -70,12 +72,47 @@ def pic_capture():
         cv2.imshow(HEADER+str(i), images[i])
         cv2.setMouseCallback(HEADER+str(i), mouse_handler, i)
 
+def find_color():
+    lower_color = np.array([38, 50, 50], np.uint8)
+    upper_color = np.array([75, 255, 255], np.uint8)
+    found_flag = False
+    for i in range (0, CAM_QUANTITY):
+        if temp_images[i] is None:
+            continue
+        for x in range(0, WIDTH, 5):
+            for y in range(0, HEIGHT, 5):
+                cropped_image = temp_images[i][y:y+5, x:x+5]
+
+                img_hsv = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2HSV)
+
+                mask = cv2.inRange(img_hsv, lower_color, upper_color)
+                amount_not_zero = cv2.countNonZero(mask)
+                # If found:
+                if amount_not_zero > (5*5)*0.2:
+                    #print "Found the color on image " + str(i) + " at (" +str(x*5)+","+str(y*5)+")"
+
+                    images[i] = np.copy(temp_images[i])
+                    cv2.imshow(HEADER+str(i),images[i])
+                    cv2.circle(images[i],(x,y),25,(255,0,255),3) 
+                    wp = WayPoint()
+                    wp.cam_id = i
+                    wp.cam_pos = (x, y)
+                    wp.phys_pos = coords
+                    waypoints[current_wp][i] = wp
+
+                    found_flag = True
+                    break
+            if found_flag is True:
+                found_flag = False
+                break
+
 
 # Main function:
 if __name__ == "__main__":
 
     coords =  enter_handler()
     pic_capture()
+    find_color()
 
     while True:
         for i in range (0, CAM_QUANTITY):
@@ -102,12 +139,14 @@ if __name__ == "__main__":
             coords =  enter_handler()
 
             pic_capture()
+            find_color()
             continue
         if k == 114:                # 'R' key
             print "Refreshing captured images..."
             pic_capture()
             waypoints.pop()
             waypoints.append({})
+            find_color()
             continue
         if k == 115:                # 'S' key
             for i in range(0,len(waypoints)):
