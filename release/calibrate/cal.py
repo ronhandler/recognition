@@ -11,6 +11,7 @@ config.read('../config.txt')
 
 CAM_QUANTITY = config.getint("general", "max_cam_number")
 URL = config.get("general", "url")
+CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
 HEADER = "camera "
 
 current_wp = 0
@@ -112,7 +113,7 @@ if __name__ == "__main__":
                     #print(str(k) + ":")
                     print(str(v))
                 print("\n")
-            with open("save.txt", "wb") as f:
+            with open(CAL_SAVE_PATH, "wb") as f:
                 pickle.dump(waypoints, f, 0)
                 #pickle.dump(waypoints[0], f, pickle.HIGHEST_PROTOCOL)
             continue

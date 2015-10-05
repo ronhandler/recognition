@@ -8,3 +8,6 @@ height = 240
 [capture_paths]
 temp_image = public/img1.png
 final_image = public/img.png
+
+[calibrate_paths]
+cal_save = ../calibrated_coords.txt
