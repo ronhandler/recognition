@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     coords =  enter_handler()
     pic_capture()
-    find_color()
+    #find_color()
 
     while True:
         for i in range (0, CAM_QUANTITY):
@@ -145,14 +145,14 @@ if __name__ == "__main__":
             coords =  enter_handler()
 
             pic_capture()
-            find_color()
+            #find_color()
             continue
         if k == 114:                # 'R' key
             print "Refreshing captured images..."
             pic_capture()
             waypoints.pop()
             waypoints.append({})
-            find_color()
+            #find_color()
             continue
         if k == 115:                # 'S' key
             for i in range(0,len(waypoints)):

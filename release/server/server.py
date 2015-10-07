@@ -105,9 +105,9 @@ def getPhysicalPosition(hog_results_list):
                             dists.append((v, d))
                             #print("Distance is: " + str(d))
                 for j in range(0, len(dists)):
-                    if mind > dists[i][1]:
-                        mind = dists[i][1]
-                        min_hog = dists[i][0]
+                    if mind > dists[j][1]:
+                        mind = dists[j][1]
+                        min_hog = dists[j][0]
             if min_hog != None:
                 #print("Minimum distance found at physical position:" + str(min_hog.phys_pos) + " (wp:" + str(min_hog.wp_id) + ")")
                 sys.stdout.write("\rPosition: " + str(min_hog.phys_pos))
