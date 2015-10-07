@@ -80,6 +80,32 @@ class capture(threading.Thread):
 def dist(p1, p2):
     return math.sqrt( (p2[1] - p1[1])**2 + (p2[0] - p1[0])**2 )
 
+def getPhysicalPosition(hog_results_list):
+            mind = float('inf')
+            min_hog = None
+            for i in range(0, MAX_CAM_NUMBER):
+                r = hog_results_list[i]
+                dists = []
+                if r == None: # If hog result is None we can skip.
+                    continue
+                for w in waypoints:
+                    for k,v in w.items():
+                        p1 = (r[0], r[1])
+                        p2 = (v.cam_pos[0], v.cam_pos[1])
+                        d = dist(p1, p2)
+                        if d != None:
+                            dists.append((v, d))
+                            #print("Distance is: " + str(d))
+                for j in range(0, len(dists)):
+                    if mind > dists[i][1]:
+                        mind = dists[i][1]
+                        min_hog = dists[i][0]
+            if min_hog != None:
+                #print("Minimum distance found at physical position:" + str(min_hog.phys_pos) + " (wp:" + str(min_hog.wp_id) + ")")
+                sys.stdout.write("\rPosition: " + str(min_hog.phys_pos))
+                sys.stdout.flush()
+                pass
+
 if __name__ == '__main__':
     process_list = []
 
@@ -115,29 +141,7 @@ if __name__ == '__main__':
             # and human position.
             # What is left to do is to find the closest waypoint that
             # matches them.
-            mind = float('inf')
-            mini = None
-            for i in range(0, MAX_CAM_NUMBER):
-                r = loop_results[i]
-                dists = []
-                if r == None: # If hog result is None we can skip.
-                    continue
-                for w in waypoints:
-                    for k,v in w.items():
-                        p1 = (r[0], r[1])
-                        p2 = (v.cam_pos[0], v.cam_pos[1])
-                        d = dist(p1, p2)
-                        if d != None:
-                            dists.append((v, d))
-                            #print("Distance is: " + str(d))
-                for j in range(0, len(dists)):
-                    if mind > dists[i][1]:
-                        mind = dists[i][1]
-                        mini = j
-                if mini != None:
-                    print("Minimum distance found at physical position:" +
-                            str(dists[mini][0].phys_pos) + " (wp:" +
-                            str(dists[mini][0].wp_id) + ")")
+            getPhysicalPosition(loop_results)
 
     except KeyboardInterrupt:
         for i in range(0, MAX_CAM_NUMBER):
