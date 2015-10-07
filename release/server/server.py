@@ -142,7 +142,7 @@ if __name__ == '__main__':
                 if image is not None:
                     if hog is not None:
                         r = hog
-                        cv2.rectangle(image, (r[0],r[1]), (r[0]+5,r[1]+5), (0,255,0), 5)
+                        cv2.rectangle(image, (r[0],r[1]), (r[0]+20,r[1]+20), (0,255,0), 5)
                     cv2.imshow("people detector "+str(i), image)
                     cv2.waitKey(1)
             # Now we have a loop_result list that contains tuples of image
