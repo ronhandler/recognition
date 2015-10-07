@@ -8,7 +8,7 @@ import math
 import cv2
 import urllib
 import numpy as np
-from hog_try import Hog_D
+from diff import Diff
 import time
 import datetime
 import signal
@@ -44,7 +44,7 @@ class capture(threading.Thread):
         self.i = i
         self.l = l
         self.running = True
-        self.h = Hog_D()
+        self.h = Diff()
         self.hog = None
         self.image = None
         self.upside_down = False
@@ -80,7 +80,7 @@ class capture(threading.Thread):
 
             # Run the hog algorithm to find the location of the human being.
             if image is not None:
-                hog = self.h.hog_f(image)
+                hog = self.h.get(image)
                 self.l.acquire()
                 self.hog = hog
                 self.l.release()
@@ -142,7 +142,7 @@ if __name__ == '__main__':
                 if image is not None:
                     if hog is not None:
                         r = hog
-                        cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
+                        cv2.rectangle(image, (r[0],r[1]), (r[0]+5,r[1]+5), (0,255,0), 5)
                     cv2.imshow("people detector "+str(i), image)
                     cv2.waitKey(1)
             # Now we have a loop_result list that contains tuples of image
