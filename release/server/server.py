@@ -24,6 +24,7 @@ DEBUG_LEVEL = config.getint("general", "debug_level")
 MAX_CAM_NUMBER = config.getint("general", "max_cam_number")
 URL = config.get("general", "url")
 CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
+UPSIDE_DOWN_LIST = config.get("general","upside_down_list")
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
@@ -46,6 +47,10 @@ class capture(threading.Thread):
         self.h = Hog_D()
         self.hog = None
         self.image = None
+        self.upside_down = False
+        for j in UPSIDE_DOWN_LIST.split(","):
+            if j == str(self.i):
+                self.upside_down = True
 
     def stop(self):
         self.running = False
@@ -56,8 +61,11 @@ class capture(threading.Thread):
         return r
 
     def getImage(self):
-        img = None
         img = self.image
+        # Rotate image if it was recorded upside down.
+        if self.upside_down == True:
+            img = cv2.flip(img, 0)
+            img = cv2.flip(img, 1)
         return img
 
     def run(self):

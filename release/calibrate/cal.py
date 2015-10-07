@@ -18,6 +18,7 @@ COLOR_DETECT_THRESHOLD = 0.2
 CAM_QUANTITY = config.getint("general", "max_cam_number")
 URL = config.get("general", "url")
 CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
+UPSIDE_DOWN_LIST = config.get("general","upside_down_list")
 HEADER = "camera "
 
 current_wp = 0
@@ -64,6 +65,10 @@ def pic_capture():
                 break
         ret, img = cap.read()
         if img is not None:
+            for k in UPSIDE_DOWN_LIST.split(","):
+                if k == str(i):
+                    img = cv2.flip(img, 0)
+                    img = cv2.flip(img, 1)
             temp_images[i] = np.copy(img)
             images[i] = np.copy(img)
         cap.release()
