@@ -152,9 +152,9 @@ if __name__ == '__main__':
             getPhysicalPosition(loop_results)
 
     except KeyboardInterrupt:
+        cv2.destroyAllWindows()
         for i in range(0, MAX_CAM_NUMBER):
             print "Terminating process "+str(i)
-            cv2.destroyAllWindows()
             process_list[i].stop()
         print "Exiting."
-        sys.exit(1)
+        sys.exit(0)
