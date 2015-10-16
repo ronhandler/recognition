@@ -40,12 +40,11 @@ def url_to_image(url):
     except:
         return None
 
-class capture(threading.Thread):
+class capture(object):
 
-    def __init__(self, i, l):
-        threading.Thread.__init__(self)
+    def __init__(self, i):
+        #threading.Thread.__init__(self)
         self.i = i
-        self.l = l
         self.running = True
         self.h = Diff()
         self.hog = None
@@ -64,31 +63,25 @@ class capture(threading.Thread):
         return r
 
     def getImage(self):
-        img = self.image
-        # Rotate image if it was recorded upside down.
-        if self.upside_down == True:
-            img = cv2.flip(img, 0)
-            img = cv2.flip(img, 1)
-        return img
 
-    def run(self):
-        i = self.i
+        #print "Into"
+        #self.l.acquire()
+        cap = cv2.VideoCapture(0)
+        ret, image = cap.read()
+        cap.release()
+        #image = url_to_image(URL+ str(i) +":800" + str(i) +"/img.png")
+        self.image = image
+        #print "image is returned"
+        #self.l.release()
 
-        while self.running == True:
-            #print "Into"
-            self.l.acquire()
-            image = url_to_image(URL+ str(i) +":800" + str(i) +"/img.png")
-            self.image = image
-            print "image is returned"
-            self.l.release()
-
-            # Run the hog algorithm to find the location of the human being.
-            if image is not None:
-                self.l.acquire()
-                hog = self.h.get(image)
-                self.hog = hog
-                print "Hog is ok"
-                self.l.release()
+        # Run the hog algorithm to find the location of the human being.
+        if image is not None:
+            #self.l.acquire()
+            hog = self.h.get(image)
+            self.hog = hog
+            #print "Hog is ok"
+            #self.l.release()
+        return image
 
 def dist(p1, p2):
     return math.sqrt( (p2[1] - p1[1])**2 + (p2[0] - p1[0])**2 )
@@ -120,7 +113,7 @@ def getPhysicalPosition(hog_results_list):
                 pass
 
 if __name__ == '__main__':
-    process_list = []
+    #process_list = []
 
     waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
     #for i in range(0,len(waypoints)):
@@ -132,17 +125,21 @@ if __name__ == '__main__':
     #exit(-1)
 
     try:
-        lock = Lock()
+        #lock = Lock()
         for i in range(0, MAX_CAM_NUMBER):
-            print i
-            my_thread = capture(i, lock)
-            my_thread.start()
-            process_list.append(my_thread)
+            #print i
+            #my_thread = capture(i, lock)
+            #my_thread.start()
+            #process_list.append(my_thread)
+            c = capture(i)
+            print "capture is started"
         while True:
             loop_results = [None]*MAX_CAM_NUMBER
             for i in range(0, MAX_CAM_NUMBER):
-                image = process_list[i].getImage()
-                hog = process_list[i].getHog()
+                #image = process_list[i].getImage()
+                image = c.getImage()
+                #hog = process_list[i].getHog()
+                hog = c.getHog()
                 loop_results[i] = hog
                 if image is not None:
                     if hog is not None:
@@ -160,6 +157,6 @@ if __name__ == '__main__':
         cv2.destroyAllWindows()
         for i in range(0, MAX_CAM_NUMBER):
             print "Terminating process "+str(i)
-            process_list[i].stop()
+            #process_list[i].stop()
         print "Exiting."
         sys.exit(0)

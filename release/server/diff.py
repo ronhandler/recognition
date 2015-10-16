@@ -34,7 +34,7 @@ class Diff(object):
                     max_diff = current_diff
                     diff_x = WIDTH-x
                     diff_y = HEIGHT-y
-        print("Diff: " + str(current_diff))
+        #print("Diff: " + str(current_diff))
 
         if (diff_x != None):
             return (diff_x, diff_y)
