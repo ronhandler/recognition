@@ -61,7 +61,8 @@ def enter_handler():
 def pic_capture():
     for i in range (0, CAM_QUANTITY):
         for j in range (0,3):
-            cap = cv2.VideoCapture(URL+CAMERA_LIST[i]+":800"+CAMERA_LIST[i]+"/img.png")
+            #cap = cv2.VideoCapture(URL+CAMERA_LIST[i]+":800"+CAMERA_LIST[i]+"/img.png")
+            cap = cv2.VideoCapture(i)
             if cap is not None:
                 break
         ret, img = cap.read()
@@ -131,7 +132,7 @@ if __name__ == "__main__":
         if k==27 or k==113:         # Esc key
             print("Exiting...")
             exit(0)
-        if k == 105 or k == 10:     # Return key
+        if k == 105 or k == 10 or k == 13:     # Return key
 
             cv2.destroyAllWindows()
             for i in range (0,100):
@@ -168,7 +169,7 @@ if __name__ == "__main__":
             continue
         if k==-1:                   # No key
             continue
-        #else:
-            #print k
+        else:
+            print k
 
     cap.release()

@@ -7,7 +7,7 @@ height = 240
 upside_down_list = 
 
 [odroid]
-camera_list = 2,3
+camera_list = 0
 
 [capture_paths]
 temp_image = public/img1.png
