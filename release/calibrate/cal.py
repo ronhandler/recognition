@@ -15,11 +15,13 @@ config.read('../config.txt')
 WIDTH = config.getint("general", "width")
 HEIGHT = config.getint("general", "height")
 COLOR_DETECT_THRESHOLD = 0.2
-CAM_QUANTITY = config.getint("general", "max_cam_number")
 URL = config.get("general", "url")
 CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
 UPSIDE_DOWN_LIST = config.get("general","upside_down_list")
 HEADER = "camera "
+CAMERA_LIST = config.get("odroid","camera_list").split(",")
+CAM_QUANTITY = len(CAMERA_LIST)
+#CAM_QUANTITY = config.getint("general", "max_cam_number")
 
 current_wp = 0
 temp_images = [None]*8
@@ -56,17 +58,16 @@ def enter_handler():
             print("Parameters need to be integers")
             continue
 
-
 def pic_capture():
     for i in range (0, CAM_QUANTITY):
         for j in range (0,3):
-            cap = cv2.VideoCapture(URL+str(i)+":800"+str(i)+"/img.png")
+            cap = cv2.VideoCapture(URL+CAMERA_LIST[i]+":800"+CAMERA_LIST[i]+"/img.png")
             if cap is not None:
                 break
         ret, img = cap.read()
         if img is not None:
             for k in UPSIDE_DOWN_LIST.split(","):
-                if k == str(i):
+                if k == CAMERA_LIST[i]:
                     img = cv2.flip(img, 0)
                     img = cv2.flip(img, 1)
             temp_images[i] = np.copy(img)
@@ -76,8 +77,8 @@ def pic_capture():
     for i in range (0, CAM_QUANTITY):
         if images[i] is None:
             continue
-        cv2.imshow(HEADER+str(i), images[i])
-        cv2.setMouseCallback(HEADER+str(i), mouse_handler, i)
+        cv2.imshow(HEADER+CAMERA_LIST[i], images[i])
+        cv2.setMouseCallback(HEADER+CAMERA_LIST[i], mouse_handler, i)
 
 def find_color():
     lower_color = np.array([38, 50, 50], np.uint8)
@@ -98,7 +99,7 @@ def find_color():
                 if amount_not_zero > (5*5)*COLOR_DETECT_THRESHOLD:
                     #print "Found the color on image " + str(i) + " at (" +str(x*5)+","+str(y*5)+")"
                     images[i] = np.copy(temp_images[i])
-                    cv2.imshow(HEADER+str(i),images[i])
+                    cv2.imshow(HEADER+CAMERA_LIST[i],images[i])
                     cv2.circle(images[i],(x,y),25,(255,0,255),3) 
                     wp = WayPoint()
                     wp.cam_id = i
@@ -124,7 +125,7 @@ if __name__ == "__main__":
         for i in range (0, CAM_QUANTITY):
             if images[i] is None:
                 continue
-            cv2.imshow(HEADER+str(i), images[i])
+            cv2.imshow(HEADER+CAMERA_LIST[i], images[i])
         
         k = cv2.waitKey(33)
         if k==27 or k==113:         # Esc key
