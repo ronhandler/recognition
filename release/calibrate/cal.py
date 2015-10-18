@@ -24,8 +24,8 @@ CAM_QUANTITY = len(CAMERA_LIST)
 #CAM_QUANTITY = config.getint("general", "max_cam_number")
 
 current_wp = 0
-temp_images = [None]*8
-images = [None]*8
+temp_images = [None]*CAM_QUANTITY 
+images = [None]*CAM_QUANTITY 
 coords = (None, None)
 waypoints = [{}]
 
