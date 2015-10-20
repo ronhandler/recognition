@@ -13,13 +13,15 @@ HEIGHT = config.getint("general", "height")
 
 class Diff(object):
     def __init__(self):
+        self.flag = False
         self.first = None
         pass
 
     def get(self, im):
         # Init the first image.
-        if self.first == None:
+        if self.flag == False:
             self.first = im
+            self.flag = True
             return None
 
         max_diff = 1000.0
