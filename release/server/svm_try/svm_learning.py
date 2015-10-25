@@ -7,22 +7,46 @@ import xml.etree.ElementTree as ET
 from PIL import Image
 import os, os.path
 
-DIR = './Neg' 
-images = []
-for i in range(0,len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])):
-    png = Image.open("./Neg/neg"+str(i)+".png")
-    images.append(np.array(png))
+class StatModel(object):
+    '''parent class - starting point to add abstraction'''    
+    def load(self, fn):
+        self.model.load(fn)
+    def save(self, fn):
+        self.model.save(fn)
 
+class SVM(StatModel):
+    '''wrapper for OpenCV SimpleVectorMachine algorithm'''
+    def __init__(self):
+        self.model = cv2.SVM()
 
-svm_params = dict( kernel_type = cv2.SVM_LINEAR, 
+    def train(self, samples, responses):
+        #setting algorithm parameters
+        params = dict( kernel_type = cv2.SVM_LINEAR, 
                        svm_type = cv2.SVM_C_SVC,
                        C = 1 )
+        self.model.train(samples, responses, params = params)
 
-descs = np.copy(images)
-resps = np.copy(images)
+    def predict(self, samples):
+        return np.float32( [self.model.predict(s) for s in samples])
 
-svm = cv2.SVM()
-svm.train_auto(descs, resps, None, None, params=svm_params, k_fold=5)
+
+rDIR = './Neg'
+dDIR = './Pos' 
+descs = [None]*len([name for name in os.listdir(dDIR) if os.path.isfile(os.path.join(dDIR, name))])
+resps = [None]*len([name for name in os.listdir(rDIR) if os.path.isfile(os.path.join(rDIR, name))])
+for i in range(0,len([name for name in os.listdir(dDIR) if os.path.isfile(os.path.join(dDIR, name))])):
+    png = Image.open("./Pos/pos"+str(i)+".png")
+    descs[i] = np.array(png, dtype = np.float32)
+    print type(descs)
+
+for f in os.listdir(rDIR): 
+    fullpath = os.path.join(rDIR, f)
+    if os.path.isfile(fullpath):   
+        png = Image.open(fullpath)
+        resps.append(np.array(png, dtype = np.float32))
+
+svm = SVM()
+svm.train(descs, resps)
 
 svm.save("svm.xml")
 tree = ET.parse('svm.xml')
