@@ -21,21 +21,21 @@ config = ConfigParser.RawConfigParser()
 config.read('../config.txt')
 
 DEBUG_LEVEL = config.getint("general", "debug_level")
-MAX_CAM_NUMBER = config.getint("general", "max_cam_number")
 URL = config.get("general", "url")
 CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
 UPSIDE_DOWN_LIST = config.get("general","upside_down_list")
+CAMERA_LIST = config.get("odroid","camera_list").split(",")
+#MAX_CAM_NUMBER = len(CAMERA_LIST)
+MAX_CAM_NUMBER = config.getint("general", "max_cam_number")
 
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
     try:
         resp = urllib.urlopen(url)
-        print "url is opened"
         image = np.asarray(bytearray(resp.read()), dtype="uint8")
         "npArray transformed"
         image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-        print "Decoding is over"
         return image
     except:
         return None
@@ -79,7 +79,6 @@ class capture(threading.Thread):
             self.l.acquire()
             image = url_to_image(URL+ str(i) +":800" + str(i) +"/img.png")
             self.image = image
-            print "image is returned"
             self.l.release()
 
             # Run the hog algorithm to find the location of the human being.
@@ -87,7 +86,6 @@ class capture(threading.Thread):
                 self.l.acquire()
                 hog = self.h.get(image)
                 self.hog = hog
-                print "Hog is ok"
                 self.l.release()
 
 def dist(p1, p2):
@@ -120,7 +118,7 @@ def getPhysicalPosition(hog_results_list):
                 pass
 
 if __name__ == '__main__':
-    process_list = []
+    process_list = [None]*MAX_CAM_NUMBER
 
     waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
     #for i in range(0,len(waypoints)):
@@ -134,13 +132,17 @@ if __name__ == '__main__':
     try:
         lock = Lock()
         for i in range(0, MAX_CAM_NUMBER):
+            if str(i) not in CAMERA_LIST:
+                continue
             print i
             my_thread = capture(i, lock)
             my_thread.start()
-            process_list.append(my_thread)
+            process_list[i] = my_thread
         while True:
             loop_results = [None]*MAX_CAM_NUMBER
             for i in range(0, MAX_CAM_NUMBER):
+                if str(i) not in CAMERA_LIST:
+                    continue
                 image = process_list[i].getImage()
                 hog = process_list[i].getHog()
                 loop_results[i] = hog
@@ -159,6 +161,8 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         cv2.destroyAllWindows()
         for i in range(0, MAX_CAM_NUMBER):
+            if str(i) not in CAMERA_LIST:
+                continue
             print "Terminating process "+str(i)
             process_list[i].stop()
         print "Exiting."

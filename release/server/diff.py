@@ -13,13 +13,15 @@ HEIGHT = config.getint("general", "height")
 
 class Diff(object):
     def __init__(self):
+        self.flag = False
         self.first = None
         pass
 
     def get(self, im):
         # Init the first image.
-        if self.first == None:
+        if self.flag == False:
             self.first = im
+            self.flag = True
             return None
 
         max_diff = 1000.0
@@ -34,6 +36,12 @@ class Diff(object):
                     max_diff = current_diff
                     diff_x = WIDTH-x
                     diff_y = HEIGHT-y
+
+            # Early return - if found a local maximum in the current row, no
+            # need to search in the other rows.
+            if (diff_x != None):
+                return (diff_x, diff_y)
+                
         #print("Diff: " + str(current_diff))
 
         if (diff_x != None):

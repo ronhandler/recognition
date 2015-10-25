@@ -32,7 +32,7 @@ waypoints = [{}]
 def mouse_handler(event, x, y, flags, cam_id):
     if event == cv2.EVENT_LBUTTONDOWN:
         images[cam_id] = np.copy(temp_images[cam_id])
-        cv2.imshow(HEADER+str(cam_id),images[cam_id])
+        cv2.imshow(HEADER+CAMERA_LIST[cam_id],images[cam_id])
         cv2.circle(images[cam_id],(x,y),25,(255,0,0),3) 
         wp = WayPoint()
         wp.wp_id = current_wp
@@ -61,8 +61,8 @@ def enter_handler():
 def pic_capture():
     for i in range (0, CAM_QUANTITY):
         for j in range (0,3):
-            #cap = cv2.VideoCapture(URL+CAMERA_LIST[i]+":800"+CAMERA_LIST[i]+"/img.png")
-            cap = cv2.VideoCapture(i)
+            cap = cv2.VideoCapture(URL+CAMERA_LIST[i]+":800"+CAMERA_LIST[i]+"/img.png")
+            #cap = cv2.VideoCapture(i)
             if cap is not None:
                 break
         ret, img = cap.read()

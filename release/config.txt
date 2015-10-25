@@ -1,13 +1,13 @@
 [general]
 debug_level = 0
-max_cam_number = 1
+max_cam_number = 8
 url = http://192.168.1.20
 width = 320
 height = 240
-upside_down_list = 
+upside_down_list = 2
 
 [odroid]
-camera_list = 0
+camera_list = 2,4
 
 [capture_paths]
 temp_image = public/img1.png
