@@ -9,7 +9,6 @@ import cv2
 import urllib
 import numpy as np
 import threading
-from threading import Lock
 import pickle
 from WayPointClass import WayPoint
 import ConfigParser
@@ -118,12 +117,14 @@ def getPhysicalPosition(hog_results_list):
 
 if __name__ == '__main__':
 
-    thread_list = [None]*len(CAMERA_LIST)
 
+    # Load waypoints from file.
     waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
 
+    thread_list = [None]*len(CAMERA_LIST)
+
     try:
-        lock = Lock()
+        lock = threading.Lock()
         for i,cam in enumerate(CAMERA_LIST):
             thread_list[i] = WorkerThread(i, lock)
             thread_list[i].start()
@@ -133,14 +134,17 @@ if __name__ == '__main__':
             loop_results = [None]*len(CAMERA_LIST)
 
             for i,cam in enumerate(CAMERA_LIST):
-                image = thread_list[i].getImage()
+                image = (thread_list[i].getImage())
                 hog = thread_list[i].getHog()
                 loop_results[i] = hog
                 if image is not None:
                     if hog is not None:
                         r = hog
-                        cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
-                    cv2.imshow("people detector " + cam, image)
+                        im = np.copy(image)
+                        cv2.rectangle(im, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
+                        cv2.imshow("people detector " + cam, im)
+                    else:
+                        cv2.imshow("people detector " + cam, image)
                     cv2.waitKey(1)
             # Now we have a loop_result list that contains tuples of image
             # and human position.
