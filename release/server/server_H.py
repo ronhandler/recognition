@@ -163,8 +163,8 @@ if __name__ == '__main__':
             for i in range(0, MAX_CAM_NUMBER):
                 image = process_list[i].getImage()
                 hog = process_list[i].getHog()
-                if LEARN_MODE > 0:
-                    #hod.build_black_list(image)
+                if hog is not None and LEARN_MODE > 0:
+                    #hog.build_black_list(image)
                     #LEARN_MODE -= 1
                     #print LEARN_MODE
                     pass
