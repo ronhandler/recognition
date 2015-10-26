@@ -4,7 +4,7 @@ max_cam_number = 8
 url = http://192.168.1.20
 width = 320
 height = 240
-upside_down_list = 2
+upside_down_list = 
 
 [odroid]
 camera_list = 2,4
