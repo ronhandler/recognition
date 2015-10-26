@@ -20,13 +20,13 @@ import ConfigParser
 config = ConfigParser.RawConfigParser()
 config.read('../config.txt')
 
-FROM_ODROID = False
+FROM_ODROID = True
 DEBUG_LEVEL = config.getint("general", "debug_level")
 URL = config.get("general", "url")
 CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
 UPSIDE_DOWN_LIST = config.get("general","upside_down_list")
-#CAMERA_LIST = config.get("odroid","camera_list").split(",")
-CAMERA_LIST = ["0"]
+CAMERA_LIST = config.get("odroid","camera_list").split(",")
+#CAMERA_LIST = ["0"]
 MAX_CAM_NUMBER = len(CAMERA_LIST)
 #MAX_CAM_NUMBER = config.getint("general", "max_cam_number")
 
@@ -147,17 +147,17 @@ if __name__ == '__main__':
         while True:
             loop_results = [None]*MAX_CAM_NUMBER
 
-            for j in range(0, 50):
-                for i in range(0, MAX_CAM_NUMBER):
-                    print i
-                    image = process_list[i].getImage()
-                    #print type(image)
-                    if image is not None:
-                        hog = process_list[i].getHog()
-                        hog.build_black_list(image)
-                        print hog.black_list[i]
-                        cv2.waitKey(1)
-            print "Done"
+           #for j in range(0, 50000):
+           #    for i in range(0, MAX_CAM_NUMBER):
+           #        print i
+           #        image = process_list[i].getImage()
+           #        #print type(image)
+           #        if image is not None:
+           #            hog = process_list[i].getHog()
+           #            hog.build_black_list(image)
+           #            print hog.black_list[i]
+           #            cv2.waitKey(1)
+           #print "Done"
 
             for i in range(0, MAX_CAM_NUMBER):
                 image = process_list[i].getImage()
@@ -166,7 +166,7 @@ if __name__ == '__main__':
                 if image is not None:
                     if hog is not None:
                         r = hog
-                        cv2.rectangle(image, (r[0],r[1]), (r[0]+20,r[1]+20), (0,255,0), 5)
+                        cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
                     cv2.imshow("people detector "+CAMERA_LIST[i], image)
                     cv2.waitKey(1)
             # Now we have a loop_result list that contains tuples of image

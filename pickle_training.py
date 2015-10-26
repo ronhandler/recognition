@@ -16,13 +16,13 @@ class Hog_D(object):
     
     def build_black_list(self, im):
         result = self.hog.detectMultiScale(im, **(self.hogParams))
-        if all(result) and len(result) == 2 :
+        if all(result) and len(result) == 2:
             print len(result), result
             if result[0][0] not in self.black_list:
                 self.black_list.append(result)
-        if all(result) and len(result) > 3 :
+        if all(result) and len(result) > 3:
             print len(result), result
-            for i in range(0, len(result)): #step of two
+            for i in range(0, len(result)):
                 res = (result[i][i])
                 if res not in self.black_list:
                     self.black_list.append(res)

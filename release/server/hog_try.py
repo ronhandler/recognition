@@ -28,7 +28,7 @@ class Hog_D(object):
         result = self.hog.detectMultiScale(im, **(self.hogParams))
         r = None
         if len(result)>0 and len(result[0])>0:
-            print len(result)
+            print result
             #for res in result:
                 #print type(self.black_list)
                 #for b in self.black_list:
