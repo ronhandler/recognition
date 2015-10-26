@@ -20,6 +20,7 @@ import ConfigParser
 config = ConfigParser.RawConfigParser()
 config.read('../config.txt')
 
+LEARN_MODE = 1000
 FROM_ODROID = True
 DEBUG_LEVEL = config.getint("general", "debug_level")
 URL = config.get("general", "url")
@@ -162,11 +163,19 @@ if __name__ == '__main__':
             for i in range(0, MAX_CAM_NUMBER):
                 image = process_list[i].getImage()
                 hog = process_list[i].getHog()
-                loop_results[i] = hog
+                if LEARN_MODE > 0:
+                    #hod.build_black_list(image)
+                    #LEARN_MODE -= 1
+                    #print LEARN_MODE
+                    pass
+                else:
+                    loop_results[i] = hog
                 if image is not None:
                     if hog is not None:
                         r = hog
                         cv2.rectangle(image, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
+                    if LEARN_MODE > 0:
+                        cv2.putText(image,"Learning Mode", (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0),2) 
                     cv2.imshow("people detector "+CAMERA_LIST[i], image)
                     cv2.waitKey(1)
             # Now we have a loop_result list that contains tuples of image
