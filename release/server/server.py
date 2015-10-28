@@ -80,7 +80,7 @@ class WorkerThread(threading.Thread):
 
     # Populate the blacklist with points we want to ignore.
     def populate_blacklist(self):
-        seconds = 5 # number of seconds to populate blacklist.
+        seconds = 30 # number of seconds to populate blacklist.
         timeout = time.time() + seconds
         # Loop for a few seconds, and populate the blacklist.
         while time.time() < timeout and self.running == True:
