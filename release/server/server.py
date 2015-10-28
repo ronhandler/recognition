@@ -80,7 +80,7 @@ class WorkerThread(threading.Thread):
 
     # Populate the blacklist with points we want to ignore.
     def populate_blacklist(self):
-        seconds = 30 # number of seconds to populate blacklist.
+        seconds = 5 # number of seconds to populate blacklist.
         timeout = time.time() + seconds
         # Loop for a few seconds, and populate the blacklist.
         while time.time() < timeout and self.running == True:
@@ -125,14 +125,16 @@ class WorkerThread(threading.Thread):
                         for blpoint in self.blacklist:
                             if (dist(result[:2], blpoint) < self.radius):
                                 near_radius_flag = True
+                        # This means that none of the results are near a
+                        # point in blacklist by self.radius distance.
                         if near_radius_flag == False:
                             self.lock.acquire()
                             self.hog = result
                             self.lock.release()
                             found_flag  = True
                             break
-                        else:
-                             print("Found a match near blacklist.")
+                        #else:
+                             #print("Found a match near blacklist.")
 
             if found_flag == False:
                 self.lock.acquire()
@@ -143,7 +145,7 @@ def dist(p1, p2):
     return math.sqrt( (p2[1] - p1[1])**2 + (p2[0] - p1[0])**2 )
 
 def getPhysicalPosition(hog_results_list):
-            mind = float('inf')
+            min_dist = float('inf')
             min_hog = None
             for i,cam in enumerate(CAMERA_LIST):
                 r = hog_results_list[i]
@@ -151,27 +153,36 @@ def getPhysicalPosition(hog_results_list):
                 if r is None: # If hog result is None we can skip.
                     continue
                 for w in waypoints:
-                    for k,v in w.items():
-                        p1 = (r[0], r[1])
-                        p2 = (v.cam_pos[0], v.cam_pos[1])
-                        d = dist(p1, p2)
-                        if d != None:
-                            dists.append((v, d))
-                            #print("Distance is: " + str(d))
+                    if i not in w.keys():
+                        continue
+                    # The hog result from camera i.
+                    p1 = (r[0], r[1])
+                    # The hog result from each waypoint.
+                    p2 = (w[i].cam_pos[0], w[i].cam_pos[1])
+                    d = dist(p1, p2)
+                    if d != None:
+                        dists.append((w[i], d))
+
+                #for w in waypoints:
+                    #for k,v in w.items():
+                        #p1 = (r[0], r[1]) # The hog result from camera i.
+                        #p2 = (v.cam_pos[0], v.cam_pos[1])
+                        #d = dist(p1, p2)
+                        #if d != None:
+                            #dists.append((v, d))
+                            ##print("Distance is: " + str(d))
                 for j in range(0, len(dists)):
-                    if mind > dists[j][1]:
-                        mind = dists[j][1]
+                    if min_dist > dists[j][1]:
+                        min_dist = dists[j][1]
                         min_hog = dists[j][0]
             if min_hog != None:
                 sys.stdout.write("\rPosition: " + str(min_hog.phys_pos))
                 sys.stdout.flush()
-                pass
+
+# Load waypoints from file.
+waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
 
 if __name__ == "__main__":
-
-
-    # Load waypoints from file.
-    waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
 
     thread_list = [None]*len(CAMERA_LIST)
 
@@ -191,7 +202,7 @@ if __name__ == "__main__":
                 hog = thread_list[i].getHog()
                 if image is not None:
                     if hog is not None:
-                        loop_results[i] = None
+                        loop_results[i] = hog
                         im = np.copy(image)
                         cv2.rectangle(im, (hog[0],hog[1]), (hog[0]+hog[2],hog[1]+hog[3]), (0,255,0), 5)
                         cv2.imshow("people detector " + cam, im)
