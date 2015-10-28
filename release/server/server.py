@@ -4,6 +4,7 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import sys
 sys.path.append("../calibrate")
+import time
 import math
 import cv2
 import urllib
@@ -22,7 +23,7 @@ UPSIDE_DOWN_LIST = config.get("general","upside_down_list")
 CAMERA_LIST = config.get("odroid","camera_list").split(",")
 
 def url_to_image(url):
-    # download the image, convert it to a NumPy array, and then read
+    # Download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
     try:
         resp = urllib.urlopen(url)
@@ -40,8 +41,8 @@ class PeopleDetector(object):
         result = self.hog.detectMultiScale(im, **(self.hogParams))
         r = None
         if len(result)>0 and len(result[0])>0:
-            r = result[0][0]
-            print("Result: " + str(r))
+            r = result[0]
+            #print("Results: " + str(r))
         return r
 
 class WorkerThread(threading.Thread):
@@ -57,6 +58,11 @@ class WorkerThread(threading.Thread):
         for j in UPSIDE_DOWN_LIST.split(","):
             if j == str(self.i):
                 self.upside_down = True
+        # Blacklist is a list of known points that we want to ignore. This
+        # is useful when we will later populate this list with points found
+        # in the first few seconds when no people were present on screen.
+        self.blacklist = []
+        self.radius = 5
 
     def stop(self):
         self.running = False
@@ -72,19 +78,65 @@ class WorkerThread(threading.Thread):
             img = cv2.flip(img, 1)
         return img
 
+    # Populate the blacklist with points we want to ignore.
+    def populate_blacklist(self):
+        seconds = 30 # number of seconds to populate blacklist.
+        timeout = time.time() + seconds
+        # Loop for a few seconds, and populate the blacklist.
+        while time.time() < timeout and self.running == True:
+            image = url_to_image(URL+ CAMERA_LIST[self.i] +":800" + CAMERA_LIST[self.i] +"/img.png")
+            if image is not None:
+                hog_list = self.h.get(image)
+                if hog_list is not None:
+                    for result in hog_list:
+                        # If result is not in the blacklist:
+                        if not np.any(result[:2] == self.blacklist):
+                            print("Adding to blacklist: " + str(result[:2]))
+                            self.blacklist.append(result[:2])
+
+            if timeout - time.time() < seconds and self.i == 0:
+                if seconds == 0:
+                    print("Learning complete.")
+                else:
+                    print("Learning. " + str(seconds) + " seconds remaining . . .")
+                seconds = seconds - 5
     def run(self):
-        i = self.i
+
+        # Learn a few seconds and populate the blacklist.
+        self.populate_blacklist()
+
+        print(str(self.i) + " blacklist: " + str(self.blacklist))
+
         while self.running == True:
             self.lock.acquire()
-            image = url_to_image(URL+ CAMERA_LIST[i] +":800" + CAMERA_LIST[i] +"/img.png")
+            image = url_to_image(URL+ CAMERA_LIST[self.i] +":800" + CAMERA_LIST[self.i] +"/img.png")
             self.image = image
             self.lock.release()
 
             # Run the hog algorithm to find the location of the human being.
+            found_flag = False
             if image is not None:
+                # Try to find a person position that is not in blacklist.
+                hog_list = self.h.get(image)
+                if hog_list is not None:
+                    for result in hog_list:
+                        # If result is not in the blacklist:
+                        near_radius_flag = False
+                        for blpoint in self.blacklist:
+                            if (dist(result[:2], blpoint) < self.radius):
+                                near_radius_flag = True
+                        if near_radius_flag == False:
+                            self.lock.acquire()
+                            self.hog = result
+                            self.lock.release()
+                            found_flag  = True
+                            break
+                        else:
+                             print("Found a match near blacklist.")
+
+            if found_flag == False:
                 self.lock.acquire()
-                hog = self.h.get(image)
-                self.hog = hog
+                self.hog = None
                 self.lock.release()
 
 def dist(p1, p2):
@@ -111,11 +163,11 @@ def getPhysicalPosition(hog_results_list):
                         mind = dists[j][1]
                         min_hog = dists[j][0]
             if min_hog != None:
-                #sys.stdout.write("\rPosition: " + str(min_hog.phys_pos))
-                #sys.stdout.flush()
+                sys.stdout.write("\rPosition: " + str(min_hog.phys_pos))
+                sys.stdout.flush()
                 pass
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
 
     # Load waypoints from file.
@@ -128,20 +180,20 @@ if __name__ == '__main__':
         for i,cam in enumerate(CAMERA_LIST):
             thread_list[i] = WorkerThread(i, lock)
             thread_list[i].start()
-            print str(i) + ": WorkerThread started for camera " + cam
+            print(str(i) + ": WorkerThread started for camera " + cam)
 
         while True:
             loop_results = [None]*len(CAMERA_LIST)
 
             for i,cam in enumerate(CAMERA_LIST):
+                loop_results[i] = None
                 image = (thread_list[i].getImage())
                 hog = thread_list[i].getHog()
-                loop_results[i] = hog
                 if image is not None:
                     if hog is not None:
-                        r = hog
+                        loop_results[i] = None
                         im = np.copy(image)
-                        cv2.rectangle(im, (r[0],r[1]), (r[0]+r[2],r[1]+r[3]), (0,255,0), 5)
+                        cv2.rectangle(im, (hog[0],hog[1]), (hog[0]+hog[2],hog[1]+hog[3]), (0,255,0), 5)
                         cv2.imshow("people detector " + cam, im)
                     else:
                         cv2.imshow("people detector " + cam, image)
@@ -156,9 +208,9 @@ if __name__ == '__main__':
         # If keyboard interrupt has occurred, we need to terminate the
         # threads one by one.
         cv2.destroyAllWindows()
-        print ""
+        print("")
         for i,cam in enumerate(CAMERA_LIST):
-            print str(i) + ": Terminating WorkerThread for camera " + cam
+            print(str(i) + ": Terminating WorkerThread for camera " + cam)
             thread_list[i].stop()
-        print "Exiting."
+        print("Exiting.")
         sys.exit(0)
