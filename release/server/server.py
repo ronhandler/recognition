@@ -80,7 +80,7 @@ class WorkerThread(threading.Thread):
 
     # Populate the blacklist with points we want to ignore.
     def populate_blacklist(self):
-        seconds = 120 # number of seconds to populate blacklist.
+        seconds = 60 # number of seconds to populate blacklist.
         timeout = time.time() + seconds
         # Loop for a few seconds, and populate the blacklist.
         while time.time() < timeout and self.running == True:
@@ -92,7 +92,7 @@ class WorkerThread(threading.Thread):
                         # If result is not in the blacklist:
                         if not np.any(result[:2] == self.blacklist):
                             point = [int(result[0]+(result[2])/2),int((result[1]+result[3]))]
-                            print("Adding to blacklist" + str(self.i) + ": " + str(point))
+                            #print("Adding to blacklist" + str(self.i) + ": " + str(point))
                             self.blacklist.append(point)
 
             if timeout - time.time() < seconds and self.i == 0:
@@ -106,7 +106,7 @@ class WorkerThread(threading.Thread):
         # Learn a few seconds and populate the blacklist.
         self.populate_blacklist()
 
-        print(str(self.i) + " blacklist: " + str(self.blacklist))
+        #print(str(self.i) + " blacklist: " + str(self.blacklist))
 
         while self.running == True:
             self.lock.acquire()
