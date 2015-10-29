@@ -62,7 +62,7 @@ class WorkerThread(threading.Thread):
         # is useful when we will later populate this list with points found
         # in the first few seconds when no people were present on screen.
         self.blacklist = []
-        self.radius = 5
+        self.radius = 20
 
     def stop(self):
         self.running = False
@@ -80,7 +80,7 @@ class WorkerThread(threading.Thread):
 
     # Populate the blacklist with points we want to ignore.
     def populate_blacklist(self):
-        seconds = 30 # number of seconds to populate blacklist.
+        seconds = 60 # number of seconds to populate blacklist.
         timeout = time.time() + seconds
         # Loop for a few seconds, and populate the blacklist.
         while time.time() < timeout and self.running == True:
@@ -91,7 +91,7 @@ class WorkerThread(threading.Thread):
                     for result in hog_list:
                         # If result is not in the blacklist:
                         if not np.any(result[:2] == self.blacklist):
-                            print("Adding to blacklist: " + str(result[:2]))
+                            print("Adding to blacklist" + str(self.i) + ": " + str(result[:2]))
                             self.blacklist.append(result[:2])
 
             if timeout - time.time() < seconds and self.i == 0:
@@ -201,13 +201,13 @@ if __name__ == "__main__":
                 image = (thread_list[i].getImage())
                 hog = thread_list[i].getHog()
                 if image is not None:
+                    im = np.copy(image)
+                    for x,y in thread_list[i].blacklist:
+                        cv2.circle(im,(x,y),thread_list[i].radius,(255,0,0),-1) 
                     if hog is not None:
                         loop_results[i] = hog
-                        im = np.copy(image)
                         cv2.rectangle(im, (hog[0],hog[1]), (hog[0]+hog[2],hog[1]+hog[3]), (0,255,0), 5)
-                        cv2.imshow("people detector " + cam, im)
-                    else:
-                        cv2.imshow("people detector " + cam, image)
+                    cv2.imshow("people detector " + cam, im)
                     cv2.waitKey(1)
             # Now we have a loop_result list that contains tuples of image
             # and human position.
