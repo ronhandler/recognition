@@ -62,7 +62,7 @@ class WorkerThread(threading.Thread):
         # is useful when we will later populate this list with points found
         # in the first few seconds when no people were present on screen.
         self.blacklist = []
-        self.radius = 20
+        self.radius = 30
 
     def stop(self):
         self.running = False
@@ -80,7 +80,7 @@ class WorkerThread(threading.Thread):
 
     # Populate the blacklist with points we want to ignore.
     def populate_blacklist(self):
-        seconds = 60 # number of seconds to populate blacklist.
+        seconds = 120 # number of seconds to populate blacklist.
         timeout = time.time() + seconds
         # Loop for a few seconds, and populate the blacklist.
         while time.time() < timeout and self.running == True:
@@ -91,8 +91,9 @@ class WorkerThread(threading.Thread):
                     for result in hog_list:
                         # If result is not in the blacklist:
                         if not np.any(result[:2] == self.blacklist):
-                            print("Adding to blacklist" + str(self.i) + ": " + str(result[:2]))
-                            self.blacklist.append(result[:2])
+                            point = [int(result[0]+(result[2])/2),int((result[1]+result[3]))]
+                            print("Adding to blacklist" + str(self.i) + ": " + str(point))
+                            self.blacklist.append(point)
 
             if timeout - time.time() < seconds and self.i == 0:
                 if seconds == 0:
@@ -123,7 +124,8 @@ class WorkerThread(threading.Thread):
                         # If result is not in the blacklist:
                         near_radius_flag = False
                         for blpoint in self.blacklist:
-                            if (dist(result[:2], blpoint) < self.radius):
+                            point = [int(result[0]+(result[2])/2),int((result[1]+result[3]))]
+                            if (dist(point, blpoint) < self.radius):
                                 near_radius_flag = True
                         # This means that none of the results are near a
                         # point in blacklist by self.radius distance.
@@ -206,6 +208,8 @@ if __name__ == "__main__":
                         cv2.circle(im,(x,y),thread_list[i].radius,(255,0,0),-1) 
                     if hog is not None:
                         loop_results[i] = hog
+                        point = [int(hog[0]+(hog[2])/2),int((hog[1]+hog[3]))]
+                        cv2.circle(im,(point[0],point[1]),10,(0,0,255),3) 
                         cv2.rectangle(im, (hog[0],hog[1]), (hog[0]+hog[2],hog[1]+hog[3]), (0,255,0), 5)
                     cv2.imshow("people detector " + cam, im)
                     cv2.waitKey(1)
