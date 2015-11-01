@@ -21,6 +21,7 @@ URL = config.get("general", "url")
 CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
 UPSIDE_DOWN_LIST = config.get("general","upside_down_list")
 CAMERA_LIST = config.get("odroid","camera_list").split(",")
+SECONDS = int(config.get("general","seconds"))
 
 def url_to_image(url):
     # Download the image, convert it to a NumPy array, and then read
@@ -80,7 +81,7 @@ class WorkerThread(threading.Thread):
 
     # Populate the blacklist with points we want to ignore.
     def populate_blacklist(self):
-        seconds = 60 # number of seconds to populate blacklist.
+        seconds = SECONDS
         timeout = time.time() + seconds
         # Loop for a few seconds, and populate the blacklist.
         while time.time() < timeout and self.running == True:
@@ -178,7 +179,7 @@ def getPhysicalPosition(hog_results_list):
                         min_dist = dists[j][1]
                         min_hog = dists[j][0]
             if min_hog != None:
-                sys.stdout.write("\rPosition: " + str(min_hog.phys_pos))
+                sys.stdout.write("\rFloor: " + str(min_hog.floor) + ", Position: " + str(min_hog.phys_pos))
                 sys.stdout.flush()
 
 # Load waypoints from file.

@@ -26,7 +26,7 @@ CAM_QUANTITY = len(CAMERA_LIST)
 current_wp = 0
 temp_images = [None]*CAM_QUANTITY 
 images = [None]*CAM_QUANTITY 
-coords = (None, None)
+coords = (None, None, None)
 waypoints = [{}]
 
 def mouse_handler(event, x, y, flags, cam_id):
@@ -38,7 +38,8 @@ def mouse_handler(event, x, y, flags, cam_id):
         wp.wp_id = current_wp
         wp.cam_id = cam_id
         wp.cam_pos = (x, y)
-        wp.phys_pos = coords
+        wp.floor = coords[0]
+        wp.phys_pos = (coords[1],coords[2])
         waypoints[current_wp][cam_id] = wp
     if event == cv2.EVENT_MBUTTONDOWN:
         images[cam_id] = np.copy(temp_images[cam_id])
@@ -46,13 +47,13 @@ def mouse_handler(event, x, y, flags, cam_id):
 
 def enter_handler():
     while True:
-        res = raw_input("WP " +str(current_wp)+ ": Please, enter the physical position x,y: ")
-        both = res.split(',')
-        if len(both) != 2:
-            print("Need two numbers separated with comma")
+        res = raw_input("WP " +str(current_wp)+ ": Please, enter the physical position floor,x,y: ")
+        floor_and_pos = res.split(',')
+        if len(floor_and_pos) != 3:
+            print("Need three numbers separated with comma")
             continue
         try:
-            ret = (int(both[0]),int(both[1]))
+            ret = (int(floor_and_pos[0]),int(floor_and_pos[1]),int(floor_and_pos[2]))
             return ret
         except:
             print("Parameters need to be integers")
@@ -106,7 +107,8 @@ def find_color():
                     wp = WayPoint()
                     wp.cam_id = i
                     wp.cam_pos = (x, y)
-                    wp.phys_pos = coords
+                    wp.floor = coords[0]
+                    wp.phys_pos = (coords[1],coords[2])
                     waypoints[current_wp][i] = wp
 
                     found_flag = True
