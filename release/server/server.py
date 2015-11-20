@@ -5,6 +5,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import sys
 sys.path.append("../calibrate")
 import time
+import datetime
 import math
 import cv2
 import urllib
@@ -22,6 +23,7 @@ CAL_SAVE_PATH = config.get("calibrate_paths","cal_save")
 UPSIDE_DOWN_LIST = config.get("general","upside_down_list")
 CAMERA_LIST = config.get("odroid","camera_list").split(",")
 SECONDS = int(config.get("general","seconds"))
+POSITION_LOG_PATH = config.get("capture_paths","position_log")
 
 def url_to_image(url):
     # Download the image, convert it to a NumPy array, and then read
@@ -148,39 +150,42 @@ def dist(p1, p2):
     return math.sqrt( (p2[1] - p1[1])**2 + (p2[0] - p1[0])**2 )
 
 def getPhysicalPosition(hog_results_list):
-            min_dist = float('inf')
-            min_hog = None
-            for i,cam in enumerate(CAMERA_LIST):
-                r = hog_results_list[i]
-                dists = []
-                if r is None: # If hog result is None we can skip.
-                    continue
-                for w in waypoints:
-                    if i not in w.keys():
-                        continue
-                    # The hog result from camera i.
-                    p1 = (r[0], r[1])
-                    # The hog result from each waypoint.
-                    p2 = (w[i].cam_pos[0], w[i].cam_pos[1])
-                    d = dist(p1, p2)
-                    if d != None:
-                        dists.append((w[i], d))
+    min_dist = float('inf')
+    min_hog = None
+    for i,cam in enumerate(CAMERA_LIST):
+        r = hog_results_list[i]
+        dists = []
+        if r is None: # If hog result is None we can skip.
+            continue
+        for w in waypoints:
+            if i not in w.keys():
+                continue
+            # The hog result from camera i.
+            p1 = (r[0], r[1])
+            # The hog result from each waypoint.
+            p2 = (w[i].cam_pos[0], w[i].cam_pos[1])
+            d = dist(p1, p2)
+            if d != None:
+                dists.append((w[i], d))
 
-                #for w in waypoints:
-                    #for k,v in w.items():
-                        #p1 = (r[0], r[1]) # The hog result from camera i.
-                        #p2 = (v.cam_pos[0], v.cam_pos[1])
-                        #d = dist(p1, p2)
-                        #if d != None:
-                            #dists.append((v, d))
-                            ##print("Distance is: " + str(d))
-                for j in range(0, len(dists)):
-                    if min_dist > dists[j][1]:
-                        min_dist = dists[j][1]
-                        min_hog = dists[j][0]
-            if min_hog != None:
-                sys.stdout.write("\rFloor: " + str(min_hog.floor) + ", Position: " + str(min_hog.phys_pos))
-                sys.stdout.flush()
+        #for w in waypoints:
+            #for k,v in w.items():
+                #p1 = (r[0], r[1]) # The hog result from camera i.
+                #p2 = (v.cam_pos[0], v.cam_pos[1])
+                #d = dist(p1, p2)
+                #if d != None:
+                    #dists.append((v, d))
+                    ##print("Distance is: " + str(d))
+        for j in range(0, len(dists)):
+            if min_dist > dists[j][1]:
+                min_dist = dists[j][1]
+                min_hog = dists[j][0]
+    if min_hog != None:
+        sys.stdout.write("\rFloor: " + str(min_hog.floor) + ", Position: " + str(min_hog.phys_pos))
+        sys.stdout.flush()
+
+    return min_hog
+
 
 # Load waypoints from file.
 waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
@@ -189,6 +194,7 @@ if __name__ == "__main__":
 
     thread_list = [None]*len(CAMERA_LIST)
 
+    old_location = None
     try:
         lock = threading.Lock()
         for i,cam in enumerate(CAMERA_LIST):
@@ -218,7 +224,16 @@ if __name__ == "__main__":
             # and human position.
             # What is left to do is to find the closest waypoint that
             # matches them.
-            getPhysicalPosition(loop_results)
+            pos = getPhysicalPosition(loop_results)
+            # Write to log.
+            if pos is not None:
+                ts = time.time()
+                st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+                if (pos != old_location):
+                    with open(POSITION_LOG_PATH, "a") as f:
+                        f.write(st + ": " + str(pos.phys_pos) + " " + str(pos.floor) + "\n")
+                old_location = pos
+            
 
     except KeyboardInterrupt:
         # If keyboard interrupt has occurred, we need to terminate the
