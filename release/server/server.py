@@ -14,6 +14,7 @@ import threading
 import pickle
 from WayPointClass import WayPoint
 import ConfigParser
+import socket
 config = ConfigParser.RawConfigParser()
 config.read('../config.txt')
 
@@ -24,6 +25,16 @@ UPSIDE_DOWN_LIST = config.get("general","upside_down_list")
 CAMERA_LIST = config.get("odroid","camera_list").split(",")
 SECONDS = int(config.get("general","seconds"))
 POSITION_LOG_PATH = config.get("capture_paths","position_log")
+SOCKET_HOST = config.get("socket", "host")
+SOCKET_PORT = config.get("socket", "port")
+
+def send_location(HOST, PORT, pos):
+    #function to send location string over the socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((HOST, PORT))
+    data = (str(pos.phys_pos) +" " + str(pos.floor))
+    s.send(data.encode())
+    s.close()
 
 def url_to_image(url):
     # Download the image, convert it to a NumPy array, and then read
@@ -230,6 +241,8 @@ if __name__ == "__main__":
                 ts = time.time()
                 st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
                 if (pos != old_location):
+                    #send location to listener
+                    send_location(SOCKET_HOST, SOCKET_PORT, pos)
                     with open(POSITION_LOG_PATH, "a") as f:
                         f.write(st + ": " + str(pos.phys_pos) + " " + str(pos.floor) + "\n")
                 old_location = pos

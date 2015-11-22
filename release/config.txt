@@ -6,6 +6,10 @@ height = 240
 upside_down_list = 0,1
 seconds = 5
 
+[socket]
+host = localhost
+port = 11112
+
 [odroid]
 camera_list = 1,2,3,4
 
