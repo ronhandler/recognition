@@ -11,13 +11,13 @@ host = localhost
 port = 11112
 
 [odroid]
-camera_list = 1,2,3,4
+camera_list = 1,3,4,7
 
 [capture_paths]
 temp_image = public/img1.png
 final_image = public/img.png
 position_log = ../position_log.txt
-floormap = ../map_big.png
+floormap = ../map_big_
 
 [calibrate_paths]
 cal_save = ../calibrated_coords.txt

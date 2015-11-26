@@ -29,7 +29,15 @@ SOCKET_HOST = config.get("socket", "host")
 SOCKET_PORT = int(config.get("socket", "port"))
 FLOORMAP_PATH = config.get("capture_paths","floormap")
 
-floormap = cv2.imread(FLOORMAP_PATH)
+
+# Load waypoints from file.
+waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
+floormaps = {}
+
+for w in waypoints:
+    for i in w.keys():
+        if w[i].floor not in floormaps.keys():
+            floormaps[w[i].floor] = cv2.imread(FLOORMAP_PATH + str(w[i].floor) + ".png")
 
 def send_location(HOST, PORT, pos):
     #function to send location string over the socket
@@ -203,14 +211,12 @@ def getPhysicalPosition(hog_results_list):
     return min_hog
 
 
-# Load waypoints from file.
-waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
-
 if __name__ == "__main__":
 
     thread_list = [None]*len(CAMERA_LIST)
 
-    old_location = None
+
+    old_locations = {}
     try:
         # Create threads
         lock = threading.Lock()
@@ -222,8 +228,9 @@ if __name__ == "__main__":
         while True:
             loop_results = [None]*len(CAMERA_LIST)
 
-            # Create a window for the floormap.
-            cv2.imshow("floor map 0", floormap)
+            # Create a window for the floormaps.
+            for i in floormaps.keys():
+                cv2.imshow("floor map " + str(i), floormaps[i])
 
             for i,cam in enumerate(CAMERA_LIST):
                 loop_results[i] = None
@@ -248,22 +255,22 @@ if __name__ == "__main__":
             pos = getPhysicalPosition(loop_results)
             # Write to log.
             if pos is not None:
+                floor = pos.floor
                 ts = time.time()
                 st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-                if (pos != old_location):
+                if (floor in old_locations.keys() and pos != old_locations[floor]):
                     #send location to listener
                     send_location(SOCKET_HOST, SOCKET_PORT, pos)
                     # Write to log.
                     with open(POSITION_LOG_PATH, "a") as f:
                         f.write(st + ": " + str(pos.phys_pos) + " " + str(pos.floor) + "\n")
                     # Update the floormap with the newly found wp.
-                    # XXX TODO XXX
-                    if old_location is not None:
-                        p1 = (old_location.phys_pos[0]*10, old_location.phys_pos[1]*10)
+                    if (floor in old_locations.keys() and old_locations[floor] is not None):
+                        p1 = (old_locations[floor].phys_pos[0]*10, old_locations[floor].phys_pos[1]*10)
                         p2 = (pos.phys_pos[0]*10, pos.phys_pos[1]*10)
-                        cv2.line(floormap, p1, p2, (255,0,0), 2)
+                        cv2.line(floormaps[floor], p1, p2, (255,0,0), 2)
 
-                old_location = pos
+                old_locations[floor] = pos
             
 
     except KeyboardInterrupt:
