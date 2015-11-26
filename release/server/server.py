@@ -27,6 +27,9 @@ SECONDS = int(config.get("general","seconds"))
 POSITION_LOG_PATH = config.get("capture_paths","position_log")
 SOCKET_HOST = config.get("socket", "host")
 SOCKET_PORT = int(config.get("socket", "port"))
+FLOORMAP_PATH = config.get("capture_paths","floormap")
+
+floormap = cv2.imread(FLOORMAP_PATH)
 
 def send_location(HOST, PORT, pos):
     #function to send location string over the socket
@@ -209,6 +212,7 @@ if __name__ == "__main__":
 
     old_location = None
     try:
+        # Create threads
         lock = threading.Lock()
         for i,cam in enumerate(CAMERA_LIST):
             thread_list[i] = WorkerThread(i, lock)
@@ -217,6 +221,9 @@ if __name__ == "__main__":
 
         while True:
             loop_results = [None]*len(CAMERA_LIST)
+
+            # Create a window for the floormap.
+            cv2.imshow("floor map 0", floormap)
 
             for i,cam in enumerate(CAMERA_LIST):
                 loop_results[i] = None
@@ -233,6 +240,7 @@ if __name__ == "__main__":
                         cv2.rectangle(im, (hog[0],hog[1]), (hog[0]+hog[2],hog[1]+hog[3]), (0,255,0), 5)
                     cv2.imshow("people detector " + cam, im)
                     cv2.waitKey(1)
+
             # Now we have a loop_result list that contains tuples of image
             # and human position.
             # What is left to do is to find the closest waypoint that
@@ -245,8 +253,16 @@ if __name__ == "__main__":
                 if (pos != old_location):
                     #send location to listener
                     send_location(SOCKET_HOST, SOCKET_PORT, pos)
+                    # Write to log.
                     with open(POSITION_LOG_PATH, "a") as f:
                         f.write(st + ": " + str(pos.phys_pos) + " " + str(pos.floor) + "\n")
+                    # Update the floormap with the newly found wp.
+                    # XXX TODO XXX
+                    if old_location is not None:
+                        p1 = (old_location.phys_pos[0]*10, old_location.phys_pos[1]*10)
+                        p2 = (pos.phys_pos[0]*10, pos.phys_pos[1]*10)
+                        cv2.line(floormap, p1, p2, (255,0,0), 2)
+
                 old_location = pos
             
 
