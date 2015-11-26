@@ -26,14 +26,16 @@ CAMERA_LIST = config.get("odroid","camera_list").split(",")
 SECONDS = int(config.get("general","seconds"))
 POSITION_LOG_PATH = config.get("capture_paths","position_log")
 SOCKET_HOST = config.get("socket", "host")
-SOCKET_PORT = config.get("socket", "port")
+SOCKET_PORT = int(config.get("socket", "port"))
 
 def send_location(HOST, PORT, pos):
     #function to send location string over the socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((HOST, PORT))
+    print "Connected to send"
     data = (str(pos.phys_pos) +" " + str(pos.floor))
     s.send(data.encode())
+    print "Sent"
     s.close()
 
 def url_to_image(url):

@@ -3,8 +3,8 @@ debug_level = 0
 url = http://192.168.1.20
 width = 320
 height = 240
-upside_down_list = 0,1
-seconds = 5
+upside_down_list = 
+seconds = 45
 
 [socket]
 host = localhost
@@ -20,3 +20,4 @@ position_log = ../position_log.txt
 
 [calibrate_paths]
 cal_save = ../calibrated_coords.txt
+cal_save_up = ./calibrated_coords.txt
