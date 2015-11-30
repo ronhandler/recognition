@@ -135,7 +135,7 @@ if __name__ == "__main__":
         if k==27 or k==113:         # Esc key
             print("Exiting...")
             exit(0)
-        if k == 105 or k == 10 or k == 13:     # Return key
+        if k == 105 or k == 10 or k == 13:     # Return(Enter) key
 
             cv2.destroyAllWindows()
             for i in range (0,100):
@@ -173,6 +173,6 @@ if __name__ == "__main__":
         if k==-1:                   # No key
             continue
         else:
-            print k
+            print k                 #Print the pressed key code
 
     cap.release()

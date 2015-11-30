@@ -43,10 +43,9 @@ def send_location(HOST, PORT, pos):
     #function to send location string over the socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((HOST, PORT))
-    print "Connected to send"
-    data = (str(pos.phys_pos) +" " + str(pos.floor))
+    print "\n Sending locations"
+    data = (str(pos.phys_pos[0])+","+ str(pos.phys_pos[1]) +" "+ str(pos.floor))
     s.send(data.encode())
-    print "Sent"
     s.close()
 
 def url_to_image(url):

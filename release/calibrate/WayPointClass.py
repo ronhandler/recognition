@@ -9,6 +9,7 @@ class WayPoint(object):
         self.phys_pos = None
     def __str__(self):
         s = ""
+        s += "    wp_id:" + str(self.wp_id) + "\n"
         s += "    cam_id:" + str(self.cam_id) + "\n" 
         s += "    cam_pos:" + str(self.cam_pos) + "\n"
         s += "    floor:" + str(self.floor) + "\n" 

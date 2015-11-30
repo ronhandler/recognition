@@ -3,11 +3,11 @@
 import socket
 import sys
 
-HOST, PORT = "localhost", 11112
+HOST, PORT = "localhost", 8888
 
 def enter_handler():
     while True:
-        res = raw_input("Enter the message")
+        res = raw_input("Enter the message:\n")
         try:
             ret = str(res)
             return ret
@@ -22,4 +22,5 @@ s.connect((HOST, PORT))
 while True:
     message = enter_handler()
     s.send(message.encode())
+    print(s.recv(1024).decode())
 s.close()
