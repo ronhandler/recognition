@@ -17,9 +17,8 @@ dest_points = [{}]
 
 waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
 for w in waypoints:
-	for i in w:
-            if w[i].wp_id not in dest_points:
-                dest_points.append(w)
+    for i in w.keys():
+        dest_points.append(w[i])
+        break
 for d in dest_points:
-    for i in d:
-        print d[i], "\n"
+        print d, "\n"
