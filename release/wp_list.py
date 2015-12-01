@@ -6,7 +6,6 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import sys
 sys.path.append("./calibrate")
 import pickle
-from WayPointClass import WayPoint
 import ConfigParser
 
 config = ConfigParser.RawConfigParser()
