@@ -1,9 +1,10 @@
 #! /usr/bin/python
 
 import socket
-import sys
+from src.release.wp_list import wp_to_dp
 
-HOST, PORT = "localhost", 8888
+HOST, PORT = "localhost", 11112
+
 
 def enter_handler():
     while True:
@@ -16,11 +17,22 @@ def enter_handler():
             continue
 
 
+def getNextwp(wp_id):
+    dp = wp_to_dp()
+    msg = "Waypoint out of the route"
+    for i in range(0, len(dp)):
+        if dp[i].wp_id == int(wp_id):
+            if dp[i] == dp[-1]:
+                msg = "Destination point"
+            else:
+                msg = str(dp[i+1].phys_pos[0])+ ", " + str(dp[i+1].phys_pos[1])
+    return msg
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 s.connect((HOST, PORT))
 while True:
-    message = enter_handler()
+    message = getNextwp(enter_handler())
     s.send(message.encode())
-    print(s.recv(1024).decode())
+    #print(s.recv(1024).decode())
 s.close()

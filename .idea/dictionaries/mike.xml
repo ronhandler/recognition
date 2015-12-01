@@ -2,6 +2,12 @@
   <dictionary name="mike">
     <words>
       <w>coords</w>
+      <w>dest</w>
+      <w>dirname</w>
+      <w>floormap</w>
+      <w>floormaps</w>
+      <w>nextwp</w>
+      <w>waypoint</w>
       <w>waypoints</w>
     </words>
   </dictionary>
