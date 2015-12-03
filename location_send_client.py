@@ -3,7 +3,7 @@
 import socket
 from src.release.wp_list import wp_to_dp
 
-HOST, PORT = "localhost", 8888
+HOST, PORT = "localhost", 11112
 
 
 def enter_handler():
