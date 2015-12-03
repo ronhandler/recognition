@@ -10,15 +10,17 @@ import numpy as np
 import threading
 import pickle
 import ConfigParser
-from src.release.wp_list import wp_to_dp  # function to convert waypoints list
 import socket
 
 # Change dir the script's location.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append("../calibrate")
+sys.path.append("../")
+
+from wp_list import wp_to_dp  # function to convert waypoints list
 
 config = ConfigParser.RawConfigParser()
-config.read('../config.txt')
+config.read('config.txt')
 
 DEBUG_LEVEL = config.getint("general", "debug_level")
 URL = config.get("general", "url")

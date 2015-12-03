@@ -20,5 +20,5 @@ position_log = ../position_log.txt
 floormap = ../map_big_
 
 [calibrate_paths]
-cal_save = ../calibrated_coords.txt
+cal_save = calibrated_coords.txt
 cal_save_up = ./calibrated_coords.txt
