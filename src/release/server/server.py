@@ -45,8 +45,9 @@ for w in waypoints:
 
 
 def send_location(host, port, wp):
+    current_pos = "Current point is: " + str(wp.phys_pos[0]) + ", " + str(wp.phys_pos[1]) + ", " + str(wp.floor)
     next_pos = "WayPoint out of the route"
-    for i in dest_points:
+    for i in range(0,len(dest_points)):
         if dest_points[i].wp_id == wp.wp_id:
             if dest_points[i] == dest_points[-1]:  # if it's last one?
                 next_pos = "Destination point"
@@ -57,7 +58,7 @@ def send_location(host, port, wp):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
     print "\n Sending locations"
-    data = next_pos
+    data = current_pos +"\n" + next_pos
     s.send(data.encode())
     s.close()
 
@@ -99,7 +100,7 @@ class WorkerThread(threading.Thread):
         self.image = None
         self.upside_down = False
         for j in UPSIDE_DOWN_LIST.split(","):
-            if j == str(self.i):
+            if j == str(CAMERA_LIST[self.i]):
                 self.upside_down = True
         # Blacklist is a list of known points that we want to ignore. This
         # is useful when we will later populate this list with points found
