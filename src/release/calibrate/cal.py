@@ -30,7 +30,7 @@ coords = (None, None, None)
 waypoints = [{}]
 
 
-def mouse_handler(event, x, y, cam_id):   # removed flags,event, x, y, flags, cam_id
+def mouse_handler(event, x, y, flags, cam_id):   # removed flags,event, x, y, flags, cam_id
     if event == cv2.EVENT_LBUTTONDOWN:
         images[cam_id] = np.copy(temp_images[cam_id])
         cv2.imshow(HEADER + CAMERA_LIST[cam_id], images[cam_id])
