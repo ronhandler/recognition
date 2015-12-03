@@ -6,13 +6,11 @@ import pickle
 import ConfigParser
 
 # Change dir the script's location.
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append("./calibrate")
+sys.path.append("../calibrate")
 
 config = ConfigParser.RawConfigParser()
-config.read('./config.txt')
-CAL_SAVE_PATH = config.get("calibrate_paths", "cal_save_up")
-
+config.read('../config.txt')
+CAL_SAVE_PATH = config.get("calibrate_paths", "cal_save")
 
 def wp_to_dp():
     dest_points = []

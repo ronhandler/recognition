@@ -20,7 +20,7 @@ sys.path.append("../")
 from wp_list import wp_to_dp  # function to convert waypoints list
 
 config = ConfigParser.RawConfigParser()
-config.read('config.txt')
+config.read('../config.txt')
 
 DEBUG_LEVEL = config.getint("general", "debug_level")
 URL = config.get("general", "url")
