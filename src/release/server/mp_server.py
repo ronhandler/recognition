@@ -7,7 +7,7 @@ import math
 import cv2
 import urllib
 import numpy as np
-import threading
+import multiprocessing
 import pickle
 import ConfigParser
 import socket
@@ -89,12 +89,11 @@ class PeopleDetector(object):
         return r
 
 
-class WorkerThread(threading.Thread):
+class WorkerThread(multiprocessing.Process):
     def __init__(self, i, lock):
-        threading.Thread.__init__(self)
+        multiprocessing.Process.__init__(self)
         self.i = i
         self.lock = lock
-        self.running = True
         self.h = PeopleDetector()
         self.hog = None
         self.image = None
@@ -107,9 +106,7 @@ class WorkerThread(threading.Thread):
         # in the first few seconds when no people were present on screen.
         self.blacklist = []
         self.radius = 50
-
-    def stop(self):
-        self.running = False
+        return
 
     def getHog(self):
         return self.hog
@@ -127,7 +124,7 @@ class WorkerThread(threading.Thread):
         seconds = SECONDS
         timeout = time.time() + seconds
         # Loop for a few seconds, and populate the blacklist.
-        while time.time() < timeout and self.running is True:
+        while time.time() < timeout:
             img = url_to_image(URL + CAMERA_LIST[self.i] + ":800" + CAMERA_LIST[self.i] + "/img.png")
             if img is not None:
                 hog_list = self.h.get(img)
@@ -153,15 +150,16 @@ class WorkerThread(threading.Thread):
 
         # print(str(self.i) + " blacklist: " + str(self.blacklist))
 
-        while self.running:
-            self.lock.acquire()
+        while True:
+            #self.lock.acquire()
             img = url_to_image(URL + CAMERA_LIST[self.i] + ":800" + CAMERA_LIST[self.i] + "/img.png")
             self.image = img
-            self.lock.release()
+            #self.lock.release()
 
             # Run the hog algorithm to find the location of the human being.
             found_flag = False
             if img is not None:
+                cv2.imshow("people detector " + str(self.i), img)
                 # Try to find a person position that is not in blacklist.
                 hog_list = self.h.get(img)
                 if hog_list is not None:
@@ -238,7 +236,7 @@ if __name__ == "__main__":
     old_locations = {}
     try:
         # Create threads
-        lock = threading.Lock()
+        lock = multiprocessing.Lock()
         for i, cam in enumerate(CAMERA_LIST):
             thread_list[i] = WorkerThread(i, lock)
             thread_list[i].start()
@@ -277,7 +275,7 @@ if __name__ == "__main__":
                 floor = pos.floor
                 ts = time.time()
                 st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-                if floor in old_locations.keys() and (pos != old_locations[floor] or old_locations[floor] is None) :
+                if floor in old_locations.keys() and pos != old_locations[floor]:
                     # send location to listener
                     send_location(SOCKET_HOST, SOCKET_PORT, pos)
                     # Write to log.
@@ -298,6 +296,6 @@ if __name__ == "__main__":
         print("")
         for i, cam in enumerate(CAMERA_LIST):
             print(str(i) + ": Terminating WorkerThread for camera " + cam)
-            thread_list[i].stop()
+            thread_list[i].terminate()
         print("Exiting.")
         sys.exit(0)

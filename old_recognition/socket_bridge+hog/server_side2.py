@@ -1,8 +1,10 @@
+#! /usr/bin/python
 import socket
 import sys
 import cv2
 import numpy
-from hog_try import Hog_D
+import struct
+#from hog_try import Hog_D
 
 def recvall(sock, count):
     buf = b''
@@ -14,8 +16,8 @@ def recvall(sock, count):
     return buf
 
 
-HOST='192.168.1.102'
-PORT=8000
+HOST='192.168.1.103'
+PORT=11113
 bytes_per_read = 2470990
 
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -28,16 +30,24 @@ print 'Socket now listening'
 
 conn,addr=s.accept()
 print "connected", addr
-h = Hog_D()
+#h = Hog_D()
+data = ""
+payload_size = struct.calcsize("L") 
 while True:   
-    length = recvall(conn,16)
-    stringData = recvall(conn, int(length))
-    data = numpy.fromstring(stringData, dtype='uint8')
-    decimg=cv2.imdecode(data,1)
-    h.hog_f(decimg)
-    #cv2.imshow('SERVER',decimg)
-    k = cv2.waitKey(1)
-    if k == 27:
-        break
+    while len(data) < payload_size:
+        data += conn.recv(4096)
+    packed_msg_size = data[:payload_size]
+    data = data[payload_size:]
+    msg_size = struct.unpack("L", packed_msg_size)[0]
+    while len(data) < msg_size:
+        data += conn.recv(4096)
+    frame_data = data[:msg_size]
+    data = data[msg_size:]
+    ###
+
+    frame=pickle.loads(frame_data)
+    print frame
+    cv2.imshow('frame',frame)
+
 s.close()
 cv2.destroyAllWindows()
