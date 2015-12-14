@@ -1,5 +1,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <cvaux.h>
 
 #include <iostream>
@@ -10,15 +11,15 @@ using namespace cv;
 
 int main ( int argc, char** argv )
 {
-    cout << "OpenCV Training SVM Automatic Number Plate Recognition\n";
+    cout << "OpenCV Training SVM Automatic Stolen From The Net\n";
     cout << "\n";
 
     char* path_Plates;
     char* path_NoPlates;
     int numPlates;
     int numNoPlates;
-    int imageWidth=144;
-    int imageHeight=33;
+    int imageWidth=320;
+    int imageHeight=240;
 
     //Check if user specify image to process
     if(argc >= 5 )
@@ -44,8 +45,12 @@ int main ( int argc, char** argv )
 
         stringstream ss(stringstream::in | stringstream::out);
         ss << path_Plates << i << ".jpg";
+        cout << ss;
+        cout << ss.str() << endl;
         Mat img=imread(ss.str(), 0);
-        img= img.reshape(1, 1);
+        //Mat img2;
+        //cvtColor(img, img2, CV_BGR2GRAY);
+        //img2= img2.reshape(1, 1);
         trainingImages.push_back(img);
         trainingLabels.push_back(1);
     }
@@ -55,7 +60,9 @@ int main ( int argc, char** argv )
         stringstream ss(stringstream::in | stringstream::out);
         ss << path_NoPlates << i << ".jpg";
         Mat img=imread(ss.str(), 0);
-        img= img.reshape(1, 1);
+        //Mat img2;
+        //cvtColor(img, img2, CV_BGR2GRAY);
+        //img2= img2.reshape(1, 1);
         trainingImages.push_back(img);
         trainingLabels.push_back(0);
 
