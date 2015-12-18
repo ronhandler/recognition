@@ -1,6 +1,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/opencv.hpp>
 #include <cvaux.h>
 
 #include <iostream>
@@ -77,6 +78,15 @@ int main ( int argc, char** argv )
     fs << "TrainingData" << trainingData;
     fs << "classes" << classes;
     fs.release();
+    //CvSVMParams params;
+    //params.svm_type = CvSVM::C_SVC;
+    //params.kernel_type = CvSVM::POLY;
+    //params.gamma = 3;    
+
+    //CvSVM svm;
+    //svm.train(trainingData, classes, Mat(), Mat(), params);
+
+    //svm.save("t_svm.xml");
 
     return 0;
 }

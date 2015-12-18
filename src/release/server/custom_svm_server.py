@@ -77,7 +77,8 @@ def url_to_image(url):
 class PeopleDetector(object):
     def __init__(self):
         self.hog = cv2.HOGDescriptor()
-        self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+        self.svm = cv2.SVM()
+        self.hog.setSVMDetector(np.array(self.svm.load('SVM.xml')))
         self.hogParams = {'winStride': (4, 4), 'padding': (32, 32), 'scale': 1.05}
 
     def get(self, img):
