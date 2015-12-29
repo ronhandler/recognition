@@ -193,7 +193,7 @@ def dist(p1, p2):
     return math.sqrt((p2[1] - p1[1]) ** 2 + (p2[0] - p1[0]) ** 2)
 
 
-def getPhysicalPosition(hog_results_list):
+def getPhysicalPosition(hog_results_list):  #maybe need to check if we didn't got None here.
     min_dist = float('inf')
     min_hog = None
     for i, cam in enumerate(CAMERA_LIST):
@@ -251,23 +251,7 @@ if __name__ == "__main__":
             for i in floormaps.keys():
                 cv2.imshow("floor map " + str(i), floormaps[i])
 
-            for i, cam in enumerate(CAMERA_LIST):
-                loop_results[i] = None
-                image = (thread_list[i].getImage())
-                hog = thread_list[i].getHog()
-                if image is not None:
-                    im = np.copy(image)
-                    for x, y in thread_list[i].blacklist:
-                        cv2.circle(im, (x, y), thread_list[i].radius, (255, 0, 0), 2)
-                    if hog is not None:
-                        loop_results[i] = hog
-                        point = [int(hog[0] + (hog[2]) / 2), int((hog[1] + hog[3]))]
-                        cv2.circle(im, (point[0], point[1]), 10, (0, 0, 255), 3)
-                        cv2.rectangle(im, (hog[0], hog[1]), (hog[0] + hog[2], hog[1] + hog[3]), (0, 255, 0), 5)
-                    cv2.imshow("people detector " + cam, im)
-                    cv2.waitKey(1)
-
-            # Now we have a loop_result list that contains tuples of image
+            # If we have a loop_result list that contains tuples of image
             # and human position.
             # What is left to do is to find the closest waypoint that
             # matches them.
@@ -288,8 +272,29 @@ if __name__ == "__main__":
                         p1 = (old_locations[floor].phys_pos[0] * 10, old_locations[floor].phys_pos[1] * 10)
                         p2 = (pos.phys_pos[0] * 10, pos.phys_pos[1] * 10)
                         cv2.line(floormaps[floor], p1, p2, (255, 0, 0), 2)
-
+                
                 old_locations[floor] = pos
+
+            for i, cam in enumerate(CAMERA_LIST):
+            
+                loop_results[i] = None
+                image = (thread_list[i].getImage())
+                hog = thread_list[i].getHog()
+                if image is not None:
+                    im = np.copy(image)
+                    for x, y in thread_list[i].blacklist:
+                        cv2.circle(im, (x, y), thread_list[i].radius, (255, 0, 0), 2)
+                    if hog is not None:
+                        loop_results[i] = hog
+                        point = [int(hog[0] + (hog[2]) / 2), int((hog[1] + hog[3]))]
+                        cv2.circle(im, (point[0], point[1]), 10, (0, 0, 255), 3)
+                        if pos is not None:   # Draw the next wp 
+                            for w in waipoints[i]:
+                                if (pos.wp_id+1) == w.wp_id:
+                                    cv2.circle(im, (w.cam_pos[0], w.cam_pos[1]), 8, (0,255,0), 3)
+                        cv2.rectangle(im, (hog[0], hog[1]), (hog[0] + hog[2], hog[1] + hog[3]), (0, 255, 0), 5)
+                    cv2.imshow("people detector " + cam, im)
+                    cv2.waitKey(1)
 
     except KeyboardInterrupt:
         # If keyboard interrupt has occurred, we need to terminate the
