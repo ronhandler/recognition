@@ -206,10 +206,13 @@ def getPhysicalPosition(hog_results_list):
             if i not in w.keys():
                 continue
             # The hog result from camera i.
-            p1 = (r[0], r[1])
+            #p1 = (r[0], r[1])
+            p1 = (int(r[0] + (r[2]) / 2), int((r[1] + r[3])))
             # The hog result from each waypoint.
             p2 = (w[i].cam_pos[0], w[i].cam_pos[1])
             d = dist(p1, p2)
+
+
             if d is not None:
                 dists.append((w[i], d))
 

@@ -11,7 +11,7 @@ host = localhost
 port = 11112
 
 [odroid]
-camera_list = 0,1,2,3
+camera_list = 0
 
 [capture_paths]
 temp_image = public/img1.png
