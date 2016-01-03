@@ -206,13 +206,10 @@ def getPhysicalPosition(hog_results_list):
             if i not in w.keys():
                 continue
             # The hog result from camera i.
-            #p1 = (r[0], r[1])
-            p1 = (int(r[0] + (r[2]) / 2), int((r[1] + r[3])))
+            p1 = (((r[0] + r[2]) / 2), (r[1] + r[3]))
             # The hog result from each waypoint.
             p2 = (w[i].cam_pos[0], w[i].cam_pos[1])
             d = dist(p1, p2)
-
-
             if d is not None:
                 dists.append((w[i], d))
 
@@ -259,21 +256,28 @@ if __name__ == "__main__":
                 loop_results[i] = None
                 image = (thread_list[i].getImage())
                 hog = thread_list[i].getHog()
-                if image is not None:
-                    im = np.copy(image)
-                    for x, y in thread_list[i].blacklist:
-                        cv2.circle(im, (x, y), thread_list[i].radius, (255, 0, 0), 2)
-                    if hog is not None:
-                        loop_results[i] = hog
-                        point = [int(hog[0] + (hog[2]) / 2), int((hog[1] + hog[3]))]
-                        cv2.circle(im, (point[0], point[1]), 10, (0, 0, 255), 3)
-                        cv2.rectangle(im, (hog[0], hog[1]), (hog[0] + hog[2], hog[1] + hog[3]), (0, 255, 0), 5)
-                    if pos is not None: #draw next wp on the screen
-                        for w in waypoints:
-                            if i in w.keys() and (pos.wp_id+1 == w[i].wp_id):
-                                cv2.circle(im, (w[i].cam_pos[0], w[i].cam_pos[1]), 20, (0, 255, 0), 3)
-                    cv2.imshow("people detector " + cam, im)
-                    cv2.waitKey(1)
+                if DEBUG_LEVEL == 1:
+                    if image is not None:
+                        im = np.copy(image)
+                        for x, y in thread_list[i].blacklist:
+                            cv2.circle(im, (x, y), thread_list[i].radius, (255, 0, 0), 2)
+                        if hog is not None:
+                            loop_results[i] = hog
+                            point = [int(hog[0] + (hog[2]) / 2), int((hog[1] + hog[3]))]
+                            cv2.circle(im, (point[0], point[1]), 10, (0, 0, 255), 3)
+                            cv2.rectangle(im, (hog[0], hog[1]), (hog[0] + hog[2], hog[1] + hog[3]), (0, 255, 0), 5)
+                        if pos is not None: #draw next wp on the screen
+                            for w in waypoints:
+                                if i in w.keys() and (pos.wp_id+1 == w[i].wp_id):
+                                    cv2.circle(im, (w[i].cam_pos[0], w[i].cam_pos[1]), 20, (0, 255, 0), 3)
+                        cv2.imshow("people detector " + cam, im)
+                        cv2.waitKey(1)
+                elif DEBUG_LEVEL == 0:
+                    if image is not None:
+                        im = np.copy(image)
+                        if hog is not None:
+                            loop_results[i] = hog
+                    
 
             # Now we have a loop_result list that contains tuples of image
             # and human position.
