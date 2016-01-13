@@ -56,8 +56,11 @@ def send_location(host, port, wp):
                 next_pos = "Next waypoint is: " + str(dest_points[i + 1].phys_pos[0]) + ", " + str(
                     dest_points[i + 1].phys_pos[1]) + ", " + str(dest_points[i + 1].floor)  # next waypoint in the route
     # function to send location string over the socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((host, port))
+    except socket.error as msg:
+        print "Socket error. Error code: " + str(msg[0]) + "Message: " + str(msg[1])
     print "\n Sending locations"
     data = current_pos +"\n" + next_pos
     s.send(data.encode())
