@@ -12,12 +12,15 @@ config = ConfigParser.RawConfigParser()
 config.read('../config.txt')
 CAL_SAVE_PATH = config.get("calibrate_paths", "cal_save")
 
-def wp_to_dp():
+def wp_to_dp(wp_list):
+    if wp_list is None:
+        return None
     dest_points = []
     waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
-
-    for w in waypoints:
-        for i in w:
-            dest_points.append(w[i])
-            break
+    for num in wp_list:
+        for w in waypoints:
+            for cam in w:
+                if int(num) == w[cam].wp_id:
+                    dest_points.append(w[cam])
+                    break
     return dest_points

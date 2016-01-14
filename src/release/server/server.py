@@ -17,8 +17,6 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append("../calibrate")
 sys.path.append("../")
 
-from wp_list import wp_to_dp  # function to convert waypoints list
-
 config = ConfigParser.RawConfigParser()
 config.read('../config.txt')
 
@@ -36,7 +34,6 @@ FLOORMAP_PATH = config.get("capture_paths", "floormap")
 # Load waypoints from file.
 waypoints = pickle.load(open(CAL_SAVE_PATH, "rb"))
 floormaps = {}
-dest_points = wp_to_dp()  # for demo navigation
 pos = None   #physical position variable
 
 for w in waypoints:
@@ -46,15 +43,7 @@ for w in waypoints:
 
 
 def send_location(host, port, wp):
-    current_pos = "Current point is: " + str(wp.phys_pos[0]) + ", " + str(wp.phys_pos[1]) + ", " + str(wp.floor)
-    next_pos = "WayPoint out of the route"
-    for i in range(0,len(dest_points)):
-        if dest_points[i].wp_id == wp.wp_id:
-            if dest_points[i] == dest_points[-1]:  # if it's last one?
-                next_pos = "Destination point"
-            else:
-                next_pos = "Next waypoint is: " + str(dest_points[i + 1].phys_pos[0]) + ", " + str(
-                    dest_points[i + 1].phys_pos[1]) + ", " + str(dest_points[i + 1].floor)  # next waypoint in the route
+    current_pos = "Current location is: " + str(wp.phys_pos[0]) + ", " + str(wp.phys_pos[1]) + ", " + str(wp.floor)
     # function to send location string over the socket
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -62,7 +51,7 @@ def send_location(host, port, wp):
     except socket.error as msg:
         print "Socket error. Error code: " + str(msg[0]) + "Message: " + str(msg[1])
     print "\n Sending locations"
-    data = current_pos +"\n" + next_pos
+    data = current_pos
     s.send(data.encode())
     s.close()
 

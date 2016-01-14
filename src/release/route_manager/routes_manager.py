@@ -4,19 +4,19 @@ import os
 import sys
 import ConfigParser
 import socket
-from src.release.wp_list import wp_to_dp
 
 # set up working directory
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append("./calibrate")
+sys.path.append("../calibrate")
+
+from wp_list import wp_to_dp
 
 config = ConfigParser.RawConfigParser()
-config.read('./config.txt')
-CAL_SAVE_PATH = config.get("calibrate_paths", "cal_save_up")
+config.read('../config.txt')
+CAL_SAVE_PATH = config.get("calibrate_paths", "cal_save")
 
 Dest_string = "Destination is:"
 Loc_string = "Current location is:"
-
 
 class Route(object):
     def __init__(self):
@@ -25,13 +25,12 @@ class Route(object):
 
     def get_next_wp(self, current_wp):
         for i in range(0, len(self.waypoints_list)):
-            if current_wp == self.waypoints_list[-1].wp_id:  # get the last element
-                print "Destination point"
-                return self.waypoints_list[-1]
-            elif current_wp == self.waypoints_list[i].wp_id:
-                return self.waypoints_list[i + 1]
-            else:
-                return None
+            if self.waypoints_list[i].equal(int(current_wp[2]), int(current_wp[0]), int(current_wp[1])):
+                if i == len(self.waypoints_list) - 1:
+                    return None
+                else:
+                    return self.waypoints_list[i + 1]
+        return None
 
 
 class Server(threading.Thread):
@@ -54,25 +53,29 @@ class Server(threading.Thread):
             l = data.find(Loc_string)
             if d is not -1:  # found destination substring
                 print "Got destination"
-                na = data[(len(Dest_string)):]  # slising to name of destination only
+                na = data[(len(Dest_string))+1:]  # slising to name of destination only
                 print str(na)  # Ensuring got the right name.
+                self.route.name = na
+                wplist = None
+                try:
+                    wplist = config.get("routes", self.route.name).split(",")
+                except:
+                    pass
+                self.route.waypoints_list = wp_to_dp(wplist)
             # got name for destination, TODO
             if l is not -1:
                 print "Got position\n"
                 position = data[(len(Loc_string)):]
-                position = position[(len(position) - 2):]
-                k = int(position)
-                next_p = self.route.get_next_wp(k)
+                pos_array = position.split(",")
+                next_p = self.route.get_next_wp(pos_array)
                 # print next_p
-                send_location('', 11112, next_p)  # TODO not forget port and host
+                send_location('', 11112, position ,next_p)  # TODO not forget port and host
             # got position TODO
             if not data:
                 print "Connection lost"
                 self.stop()
                 break
-
                 # self.sock.send(b'Oi you sent something to me')
-
 
 def listener(route):
     st = ''
@@ -97,7 +100,7 @@ def listener(route):
     s.close()
 
 
-def send_location(host, port, pos):
+def send_location(host, port, c_pos, pos):
     # function to send location string over the socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
@@ -113,6 +116,4 @@ def send_location(host, port, pos):
 # Main function:
 if __name__ == "__main__":
     r = Route()
-    r.waypoints_list = wp_to_dp()
-
     listener(r)

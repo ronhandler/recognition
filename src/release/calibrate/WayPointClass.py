@@ -17,3 +17,6 @@ class WayPoint(object):
         s += "    floor:" + str(self.floor) + "\n"
         s += "    phys_pos:" + str(self.phys_pos)
         return s
+
+    def equal(self, floor, x, y):
+        return (self.floor == floor and self.phys_pos[0] == x and self.phys_pos[1] == y)
