@@ -69,7 +69,7 @@ class Server(threading.Thread):
                 pos_array = position.split(",")
                 next_p = self.route.get_next_wp(pos_array)
                 # print next_p
-                send_location('', 11112, position ,next_p)  # TODO not forget port and host
+                send_location('', 11112, pos_array ,next_p)  # TODO not forget port and host
             # got position TODO
             if not data:
                 print "Connection lost"
@@ -100,13 +100,16 @@ def listener(route):
     s.close()
 
 
-def send_location(host, port, c_pos, pos):
+def send_location(host, port, c_pos, n_pos):
     # function to send location string over the socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
     print "\n Sending locations"
     if pos:
-        data = (str(pos.phys_pos[0]) + "," + str(pos.phys_pos[1]) + " " + str(pos.floor))
+        if int(c_pos[0]) == n_pos.phys_pos[0] and int(c_pos[1]) == n_pos.phys_pos[1] and int(c_pos[2]) == n_pos.floor :
+            data = "Destination point"
+        else:
+            data ="Current position " + c_pos[0] + ", " + c_pos[1] + ", " + c_pos[2] + "\nNext waypoint: " + (str(n_pos.phys_pos[0]) + "," + str(n_pos.phys_pos[1]) + " " + str(n_pos.floor))
     else:
         data = "Waypoint out of the route"
     s.send(data.encode())

@@ -7,12 +7,12 @@ HOST, PORT = "localhost", 8888
 
 def enter_handler():
     while True:
-        res = raw_input("Enter the message:\n")
+        res = raw_input("Enter the destination:\n")
         try:
-            ret = str(res)
+            ret ="Destination is: " + str(res)
             return ret
         except:
-            print("Parameters need to be integers")
+            print("It must to be characters")
             continue
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
