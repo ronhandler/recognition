@@ -69,8 +69,7 @@ class Server(threading.Thread):
                 pos_array = position.split(",")
                 next_p = self.route.get_next_wp(pos_array)
                 # print next_p
-                send_location('', 11112, pos_array ,next_p)  # TODO not forget port and host
-            # got position TODO
+                send_location('', 11112, pos_array ,next_p)
             if not data:
                 print "Connection lost"
                 self.stop()
@@ -105,7 +104,7 @@ def send_location(host, port, c_pos, n_pos):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
     print "\n Sending locations"
-    if pos:
+    if n_pos:
         if int(c_pos[0]) == n_pos.phys_pos[0] and int(c_pos[1]) == n_pos.phys_pos[1] and int(c_pos[2]) == n_pos.floor :
             data = "Destination point"
         else:

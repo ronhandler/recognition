@@ -240,9 +240,10 @@ if __name__ == "__main__":
         while True:
             loop_results = [None] * len(CAMERA_LIST)
 
-            # Create a window for the floormaps.
-            for i in floormaps.keys():
-                cv2.imshow("floor map " + str(i), floormaps[i])
+            if DEBUG_LEVEL == 50:
+                # Create a window for the floormaps.
+                for i in floormaps.keys():
+                    cv2.imshow("floor map " + str(i), floormaps[i])
 
             for i, cam in enumerate(CAMERA_LIST):
                 loop_results[i] = None
