@@ -47,13 +47,21 @@ The server can be any machine, even another Odroid.
 3. Edit the file: `recognition/src/release/config.txt` and make sure that the `camera_list` setting lists the connected camera unit's serial number (only the last number of each serial number).
 4. Run: `recognition/src/release/batch_start.sh` and watch each one of the cameras start recording (a red led will turn on).
 5. Run: `recognition/location_receive_server`.
-6. Run: `recognition/src/release/calibrate/cal.py` and generate a calibrated map. See appendix for instructions on how to do so.
+6. Run: `recognition/src/release/calibrate/cal.py` and [generate a calibration map](#appendix).
 7. Edit the file: `recognition/src/release/config.txt` and make sure that the setting for route1, and route2 have a list of waypoints separated with `,`.
 8. Run: `recognition/src/release/route_manager/routes_manager.py`.
 9. Enter `route1` or `route2` in the console of the running `routes_manager.py` process.
 10. Run: `recognition/src/release/server/server.py` to start the system.
 
-##Appendix
-1. 
+## Generate a calibration map.
+1. After executing `cal.py`, follow the on-screen instructions and enter floor number and location.
+2. Wait for all the camera outputs to appear on the screen.
+3. Click ,with the left mouse button, on the first waypoint location, as shown in the photos. Repeat until you've chosen all your waypoints.
+4. Press "S" to save the map.
+5. Press "Q" to quit.
+* Note: When pressing "S" or "Q", focus should be on one of the GUI windows (photos or map).
+
+## Receiver Server Integration
+In order to connect our API to an external receiving server that, for instance, can use the coordinates to direct a quad-copter, you should reference the example program written in `location_receive_server.cpp` file.
 
 
