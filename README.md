@@ -1,6 +1,3 @@
-# Recognition
-Image recognition project, utilizing HOG descriptor.
-
 ## Setup and Pre-installation
 ### Camera Unit Installation
 Repeat the following instructions per camera unit.
