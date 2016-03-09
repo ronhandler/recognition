@@ -66,7 +66,7 @@ def pic_capture():
     for i in range(0, CAM_QUANTITY):
         # Attempt to capture an image 3 times.
         for j in range(0, 3):
-            cap = cv2.VideoCapture(URL + CAMERA_LIST[i] + ":800" + CAMERA_LIST[i] + "/img.png")
+            cap = cv2.VideoCapture(URL + CAMERA_LIST[i] + ":80" + CAMERA_LIST[i] + "/img.png")
             # cap = cv2.VideoCapture(i)
             if cap is not None:
                 break

@@ -122,7 +122,7 @@ class WorkerThread(threading.Thread):
         timeout = time.time() + seconds
         # Loop for a few seconds, and populate the blacklist.
         while time.time() < timeout and self.running is True:
-            img = url_to_image(URL + CAMERA_LIST[self.i] + ":800" + CAMERA_LIST[self.i] + "/img.png")
+            img = url_to_image(URL + CAMERA_LIST[self.i] + ":80" + CAMERA_LIST[self.i] + "/img.png")
             if img is not None:
                 hog_list = self.h.get(img)
                 if hog_list is not None:
@@ -149,7 +149,7 @@ class WorkerThread(threading.Thread):
 
         while self.running:
             self.lock.acquire()
-            img = url_to_image(URL + CAMERA_LIST[self.i] + ":800" + CAMERA_LIST[self.i] + "/img.png")
+            img = url_to_image(URL + CAMERA_LIST[self.i] + ":80" + CAMERA_LIST[self.i] + "/img.png")
             self.image = img
             self.lock.release()
 

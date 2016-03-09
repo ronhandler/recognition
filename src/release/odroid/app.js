@@ -8,7 +8,7 @@ var exec = require('child_process').exec;
 app.use(express.static(__dirname + '/public'));
 
 var hostname = require('os').hostname();
-var port = "800"+hostname.slice(-1);
+var port = "80"+hostname.slice(-1);
 port = parseInt(port);
 console.log('hostname: %s', hostname);
 console.log('port: %s', port);

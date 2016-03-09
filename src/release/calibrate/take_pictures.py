@@ -27,7 +27,7 @@ if __name__ == "__main__":
     for i in range(0, CAM_QUANTITY):
         # cap = cv2.VideoCapture(i)
         for j in range(0, 100):
-            cap = cv2.VideoCapture(URL + CAMERA_LIST[i] + ":800" + CAMERA_LIST[i] + "/img.png")
+            cap = cv2.VideoCapture(URL + CAMERA_LIST[i] + ":80" + CAMERA_LIST[i] + "/img.png")
             ret, img = cap.read()
             if img is not None:
                 print j
