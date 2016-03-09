@@ -50,7 +50,7 @@ def send_location(host, port, wp):
         s.connect((host, port))
     except socket.error as msg:
         print "Socket error. Error code: " + str(msg[0]) + "Message: " + str(msg[1])
-    print "\n Sending locations"
+    #print "\n Sending locations"
     data = current_pos
     s.send(data.encode())
     s.close()
@@ -71,7 +71,8 @@ class PeopleDetector(object):
     def __init__(self):
         self.hog = cv2.HOGDescriptor()
         self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-        self.hogParams = {'winStride': (4, 4), 'padding': (32, 32), 'scale': 1.05}
+        #self.hogParams = {'winStride': (4, 4), 'padding': (32, 32), 'scale': 1.05}
+        self.hogParams = {'winStride': (4, 4), 'padding': (16, 16), 'scale': 1.05}
 
     def get(self, img):
         result = self.hog.detectMultiScale(img, **self.hogParams)
@@ -198,7 +199,7 @@ def getPhysicalPosition(hog_results_list):
             if i not in w.keys():
                 continue
             # The hog result from camera i.
-            p1 = (((r[0] + r[2]) / 2), (r[1] + r[3]))
+            p1 = (((r[0] + r[2]) / 2), (r[1] + r[3] - 55))
             # The hog result from each waypoint.
             p2 = (w[i].cam_pos[0], w[i].cam_pos[1])
             d = dist(p1, p2)
@@ -218,8 +219,9 @@ def getPhysicalPosition(hog_results_list):
                 min_dist = dists[j][1]
                 min_hog = dists[j][0]
     if min_hog is not None:
-        sys.stdout.write("\rFloor: " + str(min_hog.floor) + ", Position: " + str(min_hog.phys_pos))
-        sys.stdout.flush()
+        #sys.stdout.write("\rFloor: " + str(min_hog.floor) + ", Position: " + str(min_hog.phys_pos))
+        #sys.stdout.flush()
+        pass
 
     return min_hog
 
@@ -256,7 +258,7 @@ if __name__ == "__main__":
                             cv2.circle(im, (x, y), thread_list[i].radius, (255, 0, 0), 2)
                         if hog is not None:
                             loop_results[i] = hog
-                            point = [int(hog[0] + (hog[2]) / 2), int((hog[1] + hog[3]))]
+                            point = [int(hog[0] + (hog[2]) / 2), int((hog[1] + hog[3] - 55))]
                             cv2.circle(im, (point[0], point[1]), 10, (0, 0, 255), 3)
                             cv2.rectangle(im, (hog[0], hog[1]), (hog[0] + hog[2], hog[1] + hog[3]), (0, 255, 0), 5)
                         if pos is not None: #draw next wp on the screen

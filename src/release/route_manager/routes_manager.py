@@ -71,7 +71,7 @@ class Server(threading.Thread):
                 # print next_p
                 send_location('', 11112, pos_array ,next_p)
             if not data:
-                print "Connection lost"
+                #print "Connection lost"
                 self.stop()
                 break
                 # self.sock.send(b'Oi you sent something to me')

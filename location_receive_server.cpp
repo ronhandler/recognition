@@ -61,7 +61,7 @@ int main() {
                     //cout << "Confirmation code  " << n << endl;
             }
         }
-        cout << "Closing connection" << endl;
+        //cout << "Closing connection" << endl;
         close(serverSock);
         return 0;
 }
