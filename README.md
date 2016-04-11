@@ -44,7 +44,7 @@ The server can be any machine, even another Odroid.
 3. Edit the file: `recognition/src/release/config.txt` and make sure that the `camera_list` setting lists the connected camera unit's serial number (only the last number of each serial number).
 4. Run: `recognition/src/release/batch_start.sh` and watch each one of the cameras start recording (a red led will turn on).
 5. Run: `recognition/location_receive_server`.
-6. Run: `recognition/src/release/calibrate/cal.py` and [generate a calibration map](#appendix).
+6. Run: `recognition/src/release/calibrate/cal.py` and [generate a calibration map](#generate-a-calibration-map).
 7. Edit the file: `recognition/src/release/config.txt` and make sure that the setting for route1, and route2 have a list of waypoints separated with `,`.
 8. Run: `recognition/src/release/route_manager/routes_manager.py`.
 9. Enter `route1` or `route2` in the console of the running `routes_manager.py` process.
